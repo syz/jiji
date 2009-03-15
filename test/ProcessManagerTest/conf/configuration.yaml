@@ -1,0 +1,19 @@
+---
+
+server:
+ port: 7000
+
+securities:
+  account:
+    user:     "<user-name>"
+    password: "<password>"
+
+collector:
+  collect: false
+  wait_time: 10
+
+dir:
+  rate_data: rate_datas
+  process_log: process_logs
+  log: logs
+  html: ../html

@@ -1,0 +1,21 @@
+body {
+	margin-top:13px;
+	_margin-top:14px;
+	background:#E5E5E5;
+	margin-left:32px;
+  font-family: verdana, 'trebuchet ms', sans-serif;
+	font-size:13px;
+	white-space:pre;
+	background-image:url("images/line-numbers.gif");
+	background-repeat:repeat-y;
+	background-position:0 0px;
+	line-height:16px;
+	height:100%;
+}
+pre {margin:0;}
+html>body{background-position:0 0px;}
+P {margin:0;padding:0;border:0;outline:0;display:block;white-space:pre;}
+b, i, s, u, a, em, tt, ins, big, cite, strong, var, dfn {text-decoration:none;font-weight:normal;font-style:normal;font-size:13px;}
+
+body.hide-line-numbers {background:white;margin-left:16px;}
+body.show-line-numbers {background-image:url("images/line-numbers.png");margin-left:32px;}

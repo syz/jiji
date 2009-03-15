@@ -1,0 +1,16 @@
+---
+
+server:
+ port: 7000
+
+securities:
+  account:
+    user:     "<user-name>"
+    password: "<password>"
+
+collector:
+  wait_time: 6
+
+dir:
+  data: datas
+  log: logs
