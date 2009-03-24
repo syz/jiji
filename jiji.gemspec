@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.files = [
     "README",
     "ChangeLog",
-    "bin/jiji.rb",
+    "bin/jiji",
     "html/css/calendar.css",
     "html/css/datatable.css",
     "html/css/default.css",
@@ -399,7 +399,7 @@ Gem::Specification.new do |spec|
     "lib/jiji/util/synchronize_interceptor.rb",
     "lib/jiji/util/thread_use_generator.rb",
     "lib/jiji/util/util.rb",
-    "swf/build.xml",　
+    "swf/build.xml",
     "swf/chart/fx/chart/Chart.as",
     "swf/chart/fx/chart/ctrl/AutoUpdate.as",
     "swf/chart/fx/chart/ctrl/Controller.as",
