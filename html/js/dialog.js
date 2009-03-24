@@ -40,8 +40,8 @@ util.Dialog = function() {
   this.mask.style.visibility = "hidden";
 }
 util.Dialog.prototype = {
-  TIME : 5,
-  SPEED : 10,
+  TIME : 10,
+  SPEED : 25,
   WRAPPER : 'content',
 
   show : function( type, params ) {
@@ -69,7 +69,7 @@ util.Dialog.prototype = {
     } else {
     	this.createButton( {
     		id : "close", 
-    		alt :  "閉じる", 
+    		type : "close",
     		accesskey: "C",
     	  key: "Enter"}, keybind);
     }
@@ -100,36 +100,40 @@ util.Dialog.prototype = {
     var content = document.getElementById(this.WRAPPER);
     this.mask.style.height = content.offsetHeight + 'px';
     var self = this;
+    // すでに変化中であれば一旦停止
+    if ( this.timer != null ) {
+      clearInterval(this.timer);
+      // コントロールの無効化はすでにされているので行わない。
+    } else {
+      // リンクとコントロールを無効化
+      this.cache = [];
+      var f = function( elms ) {
+        for( var i = 0 ; i < elms.length; i++ ) {
+          var old = { 
+              target: elms[i],
+              disabled: elms[i].disabled, 
+              accesskey: elms[i].accessKey,
+              tabIndex : elms[i].tabIndex
+          };
+          elms[i].disabled = true;
+          elms[i].accessKey = null;
+          elms[i].tabIndex = -1;
+          self.cache.push( old );
+        }
+      } 
+      this.eachElements( "input", f);
+      this.eachElements( "textarea", f);
+      this.eachElements( "a", f);
+      this.eachElements( "object", function(elms){ 
+        for( var i = 0 ; i < elms.length; i++ ) {
+          elms[i].style.visibility = "hidden";
+        }
+      });
+    }
     this.timer = setInterval(function(){ self.fadeDialog(1); }, this.TIME);
-    
     if ( params.init ) {
       params.init.call( null, this );
     }
-    
-    // リンクとコントロールを無効化
-    this.cache = [];
-    var f = function( elms ) {
-    	for( var i = 0 ; i < elms.length; i++ ) {
-    		var old = { 
-    				target: elms[i],
-    		    disabled: elms[i].disabled, 
-    		    accesskey: elms[i].accessKey,
-    		    tabIndex : elms[i].tabIndex
-    		};
-    		elms[i].disabled = true;
-    		elms[i].accessKey = null;
-    		elms[i].tabIndex = -1;
-    		self.cache.push( old );
-    	}
-    } 
-    this.eachElements( "input", f);
-    this.eachElements( "textarea", f);
-    this.eachElements( "a", f);
-    this.eachElements( "object", function(elms){ 
-      for( var i = 0 ; i < elms.length; i++ ) {
-        elms[i].style.visibility = "hidden";
-      }
-    });
   }, 
 
   createButton: function( params, keybind ) {
@@ -188,7 +192,6 @@ util.Dialog.prototype = {
     		c.target.tabIndex = c.tabIndex;
     		c.target.disabled = c.disabled;
     	}
-    	this.cache = null;
     	
       this.eachElements( "object", function(elms){ 
         for( var i = 0 ; i < elms.length; i++ ) {
@@ -199,6 +202,7 @@ util.Dialog.prototype = {
       this.dialog.style.visibility = "hidden";
       this.mask.style.visibility = "hidden";
       clearInterval(this.timer);
+      this.timer = null;
     }
   },
   

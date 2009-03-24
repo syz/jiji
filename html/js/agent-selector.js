@@ -57,6 +57,7 @@ fx.agent.ui.AgentSelector.prototype = {
    * エージェントを設定する
    */
   setAgents : function(data) {
+    this.agentListTable.loading(false);
     if ( data ) {
       this.agentListTable.setData(data);
       if ( !this.readOnly ) {
@@ -112,6 +113,7 @@ fx.agent.ui.AgentSelector.prototype = {
         self.listAgentClass( false, function( data ) {
           self.agentClasses = data;
           self.agentClassListTable.setData(data);
+          self.agentClassListTable.loading(false);
           if ( data.length > 0 ) {
             self.agentClassListTable.table.selectRow(0);
           }
@@ -246,9 +248,15 @@ fx.agent.ui.AgentSelector.prototype = {
       removeEnable = true;
       // エディタも更新する。
       var selectedEl = this.agentListTable.table.getSelectedTrEls()[0];
-      this.agentPropertyEditor.target =  this.agentListTable.table.getRecord  (selectedRowIds[0]);
-      var data = this.agentListTable.table.getRecord( selectedRowIds[0] ).getData();
-      self.agentPropertyEditor.set( data );
+      var target =  this.agentListTable.table.getRecord(selectedRowIds[0]);
+      if ( target ) {
+        this.agentPropertyEditor.target = target;
+        var data = target.getData();
+        self.agentPropertyEditor.set( data );
+      } else {
+        removeEnable = false;
+        self.agentPropertyEditor.clear( "エージェントを選択してください。" );
+      }
     } else {
       removeEnable = true;
       // エディタは初期化

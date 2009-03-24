@@ -70,7 +70,7 @@ dynamic class Stub extends Proxy {
     var data:String = JSON.encode({
         "method":name.toString(), "params":rest, "time":new Date().getTime()
     });
-    log(data);
+    //log(data);
     //request.method = URLRequestMethod.POST;
     var variable:URLVariables = new URLVariables();
     variable.request = data;
@@ -80,7 +80,7 @@ dynamic class Stub extends Proxy {
     var loader:URLLoader = new URLLoader();
     loader.addEventListener(flash.events.Event.COMPLETE, function( ev:flash.events.Event):void {
        changeRequestCount(-1);
-       log(ev.target.data);
+       //log(ev.target.data);
        var result:Object = JSON.decode( ev.target.data)[0];
        if ( result["error"] ) {
           fail.apply(null, [result["error"]] );
@@ -106,7 +106,7 @@ dynamic class Stub extends Proxy {
   }
   private function changeRequestCount( diff:int  ):void {
       requestCount+= diff;
-      log( "request count : " + String(requestCount) );
+      //log( "request count : " + String(requestCount) );
       sf.listenerSupport.fire( fx.chart.ctrl.Event.REQUEST_COUNT_CHANGED, 
               {"requestCount":requestCount} );
   }

@@ -48,11 +48,13 @@ package fx.chart.ui {
       // イベントをキャプチャ
       pointerLayer.stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
     }
-
+    public function setPosition( x:int, y:int ):void {
+        pointerLayerY.x = x;
+        pointerLayerX.y = y;
+        informationWindow.setPosition(x,y);
+    }
     private function onMouseMove( ev:MouseEvent ):void {
-      pointerLayerY.x = ev.stageX;
-      pointerLayerX.y = ev.stageY;
-      informationWindow.onMouseMove(ev);
+        setPosition( ev.stageX, ev.stageY );
     }
   }
 

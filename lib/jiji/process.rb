@@ -55,8 +55,7 @@ module JIJI
         collector.start
       }
       # 状態を覚えておく
-      props["state"] = collector.state
-      save_props
+      self["state"] = collector.state
     end
 
     def stop
@@ -64,14 +63,18 @@ module JIJI
         if @started  # 起動していない場合は何もしない
           observer_manager.stop
           collector.stop
-          collector.logger.close
 
           # 状態を覚えておく
-          props["state"] = collector.state
-          save_props
+          self["state"] = collector.state
           @started = false
+        else
+          # 待機中の場合、キャンセル状態にする。
+          if props["state"] == :WAITING
+           self["state"] = :CANCELED
+          end
         end
       }
+      collector.logger.close
     end
 
     def state

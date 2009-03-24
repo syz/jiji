@@ -74,7 +74,9 @@ module JIJI
         r.register( :server_logger ) {
           dir = "#{r.base_dir}/#{r.conf.get([:dir,:log], "logs")}"
           FileUtils.mkdir_p dir
-          Logger.new( dir + "/log.txt", 10, 512*1024 )
+          l = Logger.new( dir + "/log.txt", 10, 512*1024 )
+          l.level = Logger::DEBUG
+          l
         }
         r.register( :process_logger, :model=>:multiton_initialize ) {|c,p,id|
           dir = "#{r.process_dir}/#{id}"

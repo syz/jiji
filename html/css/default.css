@@ -280,6 +280,12 @@ div.wl {
   background-position: 0px 3px;
   margin-bottom: 5px;
 }
+#agent_edit_msg {
+  margin: 10px 0px 0px 0px;
+  padding: 10px;
+  border: 1px dotted #999999;
+  width:480px;
+}
 
 div.agent-property-editor {
   padding: 10px 10px 10px 20px;

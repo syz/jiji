@@ -23,6 +23,8 @@ package fx.chart.ui.graph {
     public function draw( data:Object, colors:Array ):void {
       main.x = 0;
       Util.clear( main );
+      Util.clear( axis );
+      Util.clear( lowAxis );
 
       // データ数分のスプライトを作成
       if ( !data["datas"] || data["datas"].length <= 0 ) { return; }
@@ -103,7 +105,7 @@ package fx.chart.ui.graph {
       }
       
       // 背景線を引く
-      drawAxis( data, f );
+      drawAxis( data,  f );
         
       // グラフ
       drawLineGraph( data, f , colors, sprites );
@@ -170,7 +172,7 @@ package fx.chart.ui.graph {
             var y:int = f(item); 
             lowAxis.graphics.moveTo( rect.left,  y);
             lowAxis.graphics.lineTo( rect.right,  y);
-            createText( String(item), axis,  Constants.TEXT_FORMAT_SCALE_Y,  0, y-3, rect.left-5 );
+            createText( String(item), axis,  Constants.TEXT_FORMAT_SCALE_Y,  0, y-8, rect.left-2 );
         } );
       }
     }

@@ -40,6 +40,10 @@ module JIJI
       @registry.operator( "rmt", false, nil).stop
       @rmt.stop
       @mutex.synchronize {
+        @waiting.each {|i| 
+          i.collector.listeners.delete(self)
+          i.stop 
+        }
         @waiting.clear
         if @running != nil
           @running.collector.listeners.delete(self)
@@ -164,6 +168,9 @@ module JIJI
           else
             @running = nil
           end
+        else
+          # 待機中であればキューから除外。
+          @waiting = @waiting.reject{|i| i.id == id }
         end
       }
       @back_tests.delete( id )

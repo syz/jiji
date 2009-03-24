@@ -139,8 +139,9 @@ package fx.chart.ui {
       if ( scrollMax <= scrollMin  ) {
         // 移動後の範囲が、表示可能範囲外
         // スクロール不可
-        step = 0;
-        positionLeft = scroll.positionLeft;
+//        step = 0;
+//        positionLeft = scroll.positionLeft;
+        return;
       } else if (  scrollMax <= step ) {
         step = scrollMax;
         positionLeft = 0;

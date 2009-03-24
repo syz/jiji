@@ -12,7 +12,7 @@ package fx.chart.ui {
     /** コントローラー */
     public static const CONTROLLER:Number = 30;
     /** グラフ表示領域 */
-    public static const GRAPH:Number = 70;
+    public static const GRAPH:Number = 80;
     /** トレード結果表示領域 */
     public static const TRADE:Number = 40;
     /** X軸 */
@@ -72,9 +72,9 @@ package fx.chart.ui {
           height - (PADDING+PROFIT+X_AXIS+GRAPH+PADDING+CONTROLLER) );
       graph = new Rectangle(
           PADDING_LEFT,
-          height - (PADDING+PROFIT+X_AXIS+GRAPH) -50 ,
+          height - (PADDING+PROFIT+X_AXIS+GRAPH) ,
           width - PADDING - PADDING_LEFT,
-          GRAPH + 50 );
+          GRAPH  );
       xAxis = new Rectangle(
           PADDING_LEFT,
           height - (PADDING+PROFIT+X_AXIS),

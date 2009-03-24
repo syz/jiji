@@ -133,7 +133,7 @@ fx.ui.pages.TradeResultPage = function() {
   this.tradeListTable.initialize();
   this.agentResultListTable = new fx.ui.AgentResultListTable( "subpage-trade__agent-list" );
   this.agentResultListTable.initialize();
-  this.updateButton = new util.Button("subpage-trade__update", "update", function() {
+  this.updateButton = new util.Button("subpage-trade__update", "update_s", function() {
     self.update();
   });
   this.updateButton.setEnable( true );
@@ -198,9 +198,9 @@ fx.ui.pages.TradeResultPage.prototype = {
           return;
         }
       } else {
-         // 入力がなければ今月のデータを表示
+         // 入力がなければ今週のデータを表示
         var now = new Date();
-        var end = new Date( now.getFullYear(), now.getMonth()+1, 0  );
+        var end = new Date( now.getFullYear(), now.getMonth(), now.getDay() -7  );
         startDate = new Date( now.getFullYear(), now.getMonth(), 1  ).getTime()/1000;
         endDate = end.getTime()/1000;
 
@@ -219,7 +219,9 @@ fx.ui.pages.TradeResultPage.prototype = {
     }
     // ロード中に変更
     summaryEl.innerHTML= fx.template.Templates.common.loading;
-
+    this.agentResultListTable.loading(true);
+    this.tradeListTable.loading(true);
+    
     var self = this;
     // 終了時間はその日の終わりにする
     this.tradeResultServiceStub.list( this.currentProcessId, "6h", startDate, endDate+60*60*25,  function( list ) {
@@ -231,7 +233,10 @@ fx.ui.pages.TradeResultPage.prototype = {
         return (b.date || 0) - ( a.date || 0);
       }  ) );
       self.agentResultListTable.setData( value[1] );
-
+      
+      self.agentResultListTable.loading(false);
+      self.tradeListTable.loading(false);
+      
     }, function(){}  ); // TODO
   },
   aggregate: function( list ) {
@@ -434,11 +439,13 @@ fx.ui.TradeListTable.prototype = util.merge( util.BasicTable, {
       {key:"date", label:"取引日時", sortable:true, resizeable:true,width:118, formatter: function( cell, record, column, data){
           var d = new Date(data*1000);
           cell.innerHTML =  util.formatDate(d);
+          //cell.innerHTML =  '<a href="javascript:util.getSwf(\'chart\').setDate( ' + data + ' );scrollTo( 0, 0 );">' + util.formatDate(d) + '</a>';
       } },
       {key:"fix_date", label:"決済日時", sortable:true, resizeable:true,width:118, formatter: function( cell, record, column, data){
         if (data) {
           var d = new Date(data*1000);
           cell.innerHTML =  util.formatDate(d);
+          //cell.innerHTML =  '<a href="javascript:util.getSwf(\'chart\').setDate( ' + data + ' );scrollTo( 0, 0 );">' + util.formatDate(d) + '</a>';
         } else {
           cell.innerHTML =  "-";
         }

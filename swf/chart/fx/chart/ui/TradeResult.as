@@ -198,14 +198,7 @@ package fx.chart.ui {
       var middle:int = profit.top + profit.height/2;
 
       // 0
-      var zero:TextField = new TextField();
-      zero.selectable = false;
-      zero.text = "0";
-      zero.width = profit.left-1;
-      zero.setTextFormat( Constants.TEXT_FORMAT_SCALE_Y );
-      zero.y = middle-7;
-      zero.x = 0;
-      axis.addChild(zero);
+      createText( "0", axis,  Constants.TEXT_FORMAT_SCALE_Y,  0, middle-8, profit.left-2 );
 
       // 背景
 //      axis.graphics.lineStyle( 0, Constants.COLOR_AXIS_HI );
@@ -238,14 +231,7 @@ package fx.chart.ui {
         lowAxis.graphics.moveTo( rc.stage.candle.left+1, y );
         lowAxis.graphics.lineTo( rc.stage.candle.right, y );
 
-        var scaleText:TextField = new TextField();
-        scaleText.selectable = false;
-        scaleText.text = tmp.toString();
-        scaleText.width = rc.stage.candle.left;
-        scaleText.setTextFormat( Constants.TEXT_FORMAT_SCALE_Y );
-        scaleText.y = y-7;
-        scaleText.x = 0;
-        axis.addChild(scaleText);
+        createText( tmp.toString(), axis,  Constants.TEXT_FORMAT_SCALE_Y,  0, y-8, rc.stage.candle.left-2 );
       }
 
 
@@ -328,7 +314,7 @@ class Slot {
   public function add( trade:Object ):void {
     data.push( trade );
     last = trade.fix_date;
-    log("last:" + String(last) )
+    //log("last:" + String(last) )
   }
 }
 

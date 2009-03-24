@@ -94,7 +94,7 @@ package fx.chart {
 
 
       } catch ( ex:Error ) {
-        log(ex.message + ":" + ex.getStackTrace());
+        //log(ex.message + ":" + ex.getStackTrace());
       }
     }
     /**
@@ -104,6 +104,9 @@ package fx.chart {
         ExternalInterface.addCallback("initializeChart", this.initializeChart );
         ExternalInterface.addCallback("setDate", function( date:Number ):void {
             ctrl.changeDate( Util.createDate(date) );
+            pointer.setPosition( 
+                    rc.stage.candle.left + (rc.stage.candle.width/2) + 11,
+                    rc.stage.candle.bottom - (rc.stage.candle.height/4));
         } );
         ExternalInterface.addCallback("setGraphVisible", this.setGraphVisible );
         ExternalInterface.addCallback("setGraphColors", this.setGraphColors );

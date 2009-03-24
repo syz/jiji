@@ -236,7 +236,10 @@ module JIJI
       checked << m
       m.constants.each {|name|
         cl = m.const_get name
-        block.call( "#{get_name(cl.name)}@#{file}" ) if cl.kind_of?(Class) && cl < JIJI::Agent
+        begin 
+          block.call( "#{get_name(cl.name)}@#{file}" ) if cl.kind_of?(Class) && cl < JIJI::Agent
+        rescue Exception
+        end
         find_agent( file, cl, checked, &block ) if cl.kind_of?(Module)
       }
     end

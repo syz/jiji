@@ -70,6 +70,9 @@ fx.ui.pages.BtCreatePage.prototype = {
       self.endCalendar.listener.addListener( "selected", f );
       self.endCalendar.listener.addListener( "blur", f );
     }, null ); // TODO
+    
+    // セレクタを初期化。
+    this.agentSelector.setAgents([]);
   },
   /**
    * ページを初期化する。
@@ -149,8 +152,11 @@ fx.ui.pages.BtCreatePage.prototype = {
             var msg = document.getElementById("bt-create_msg");
             msg.innerHTML = "※開始しました。( " + dateStr + " )";
             msg.style.display = "block";
-
-          }, null ); //TODO
+          },  function(error){
+            self.dialog.show( "warn", {
+              message : fx.template.Templates.btcreate.start.error.evaluate({"error":error[0].error})
+            });
+          } ); 
         } },
         { type:"cancel" }
       ]

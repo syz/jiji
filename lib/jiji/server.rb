@@ -14,7 +14,12 @@ module JIJI
       
       conf = registry[:conf]
       param[:Port] = conf.get([:server,:port], 7000).to_i 
-      param[:ServerType] = WEBrick::Daemon
+      begin
+        fork{}
+        param[:ServerType] = WEBrick::Daemon
+      rescue Exception
+      end
+      
       param[:Logger] = registry[:server_logger]  
       param[:DocumentRoot] = File.expand_path( "#{__FILE__}/../../../html" )
       

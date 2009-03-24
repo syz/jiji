@@ -239,7 +239,10 @@ util.Button = function( id, imgName, action, alt, accesskey, enable, prefix, suf
   if (accesskey) { this.a.accessKey = accesskey; }
   this.n.appendChild( this.a );
   this.img = document.createElement("img");
-  if (alt)  { this.img.alt = accesskey ? alt + "( " +accesskey+ " )" : alt; }
+  if (alt)  { 
+     this.img.alt = accesskey ? alt + "( " +accesskey+ " )" : alt; 
+     this.img.title =  this.img.alt;
+  }
   this.img.src = prefix + this.imgName + suffix;
   this.img.style.width = this.n.style.width;
   var self = this;
@@ -389,6 +392,25 @@ util.BasicTable = {
     self.table.subscribe("rowMouseoverEvent", self.table.onEventHighlightRow);
     self.table.subscribe("rowMouseoutEvent", self.table.onEventUnhighlightRow);
     self.table.subscribe("rowClickEvent", self.table.onEventSelectRow);
+    
+    // リサイザーを強制的に利用可にする。
+    var res = document.getElementsByClassName("yui-dt-resizer", self.elementId);
+    for ( var i=0,n=res.length;i<n;i++ ) {
+      res[i].style.height = "19px";
+    }
+    
+    // ローディングを作成
+    this.table_elm = document.getElementById(self.elementId);
+    this.loading_elm = document.createElement('div');
+    this.loading_elm.innerHTML = fx.template.Templates.common.loading;
+    this.loading_elm.style.padding = "10px";
+    this.loading_elm.style.display = "none";
+    this.table_elm.parentNode.appendChild(this.loading_elm);
+    this.loading(true);
+  },
+  loading : function( on ) {
+    this.loading_elm.style.display = on ? "block" : "none";
+    this.table_elm.style.display = on ? "none" :  "block";
   },
   setData: function( data ) {
     if ( this.length() > 0 ) {

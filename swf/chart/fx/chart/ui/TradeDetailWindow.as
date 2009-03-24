@@ -13,7 +13,7 @@ package fx.chart.ui {
   public class TradeDetailWindow extends AbstractChartUI  {
 
     private static const WIDTH:int = 230;
-    private static const HEIGHT:int = 100;
+    private static const HEIGHT:int = 117;
 
     private var infoLayer:Sprite;
     private var window:Window;
@@ -40,21 +40,21 @@ package fx.chart.ui {
 
       var g:Graphics = window.window.graphics;
 
-      g.lineStyle( 0, 0xE3E3E0, 1,
+      g.lineStyle( 0, 0xD3D3D0, 1,
           true, LineScaleMode.NONE, CapsStyle.NONE, JointStyle.BEVEL );
       g.moveTo( 10, 35 );
       g.lineTo( WIDTH-10, 35 );
-      g.moveTo( 10, 60 );
-      g.lineTo( WIDTH-10, 60 );
+      g.moveTo( 10, 77 );
+      g.lineTo( WIDTH-10, 75 );
 
       // 最初は非表示
       infoLayer.visible = false;
 
       textFields["result"] = createTextField( 10,5,220,24,Constants.TEXT_FORMAT_TINFO_PROFIT_UP );
       textFields["info"] = createTextField( 40,40,180,15,Constants.TEXT_FORMAT_TINFO_INFO );
-
+      textFields["trader"] = createTextField( 10,57,180,15,Constants.TEXT_FORMAT_INFO_BASIC_L  );
       (["start","end"]).forEach( function( item:*,i:int,arr:Array ):void{
-        textFields[item] = createTextField( 40,63+i*15,190,15,Constants.TEXT_FORMAT_INFO_BASIC_L );
+        textFields[item] = createTextField( 40,80+i*15,190,15,Constants.TEXT_FORMAT_INFO_BASIC_L );
       } );
 
       sell = new Constants.ICON_SELL();
@@ -71,7 +71,7 @@ package fx.chart.ui {
       var end:Bitmap = new Constants.ICON_END_LABEL();
       ([start,end]).forEach( function( item:*,i:int,arr:Array ):void{
         item.x = 11;
-        item.y = 66+i*15;
+        item.y = 82+i*15;
         window.window.addChild( item );
       } );
 
@@ -112,7 +112,8 @@ package fx.chart.ui {
         sell.visible = false;
         buy.visible = true;
       }
-      textFields["info"].text = " / " + d["pair"] + " / " + int( d["price"] / d["rate"])
+      textFields["trader"].text = d["trader"] ? d["trader"] : "-";
+      textFields["info"].text = " / " + d["pair"] + " / " + int( d["price"] / d["rate"]);
       textFields["start"].text = d["rate"] + " " + formatDate( d["date"] );
       if ( d["fix_rate"] && d["fix_date"] ) {
         textFields["end"].text = d["fix_rate"] + " " + formatDate( d["fix_date"] );

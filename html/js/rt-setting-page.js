@@ -81,7 +81,7 @@ fx.ui.pages.RtSettingPage.prototype = {
         { type:"ok", action: function(dialog){
           var enable = document.getElementById("rt-setting_trade-enable").checked;
           self.updateSetting( enable, agents, function() {
-            // 更新時刻を表示 // TODO
+            // 更新時刻を表示
             var dateStr = util.formatDate( new Date() );
             var msg = document.getElementById("rt-setting_msg");
             msg.innerHTML = "※設定を反映しました。( " + dateStr + " )";
@@ -90,7 +90,11 @@ fx.ui.pages.RtSettingPage.prototype = {
             // 自動更新設定を更新
             self.tradeEnable.set( enable );
 
-          }, null ); //TODO
+          }, function(error){
+            self.dialog.show( "warn", {
+              message : fx.template.Templates.rtsetting.apply.error.evaluate({"error":error[0].error})
+            });
+          }  ); 
         } },
         { type:"cancel" }
       ]

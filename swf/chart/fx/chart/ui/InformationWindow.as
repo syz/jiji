@@ -98,49 +98,53 @@ package fx.chart.ui {
         window.window.addChild( item );
       } );
     }
-    public function onMouseMove( ev:MouseEvent ):void {
-      var stageWidth:int = rc.stage.width;
-      var stageHeight:int = rc.stage.height;
-      if ( model.rateDatas &&
-          ev.stageX >= rc.stage.candle.left+1 &&
-          ev.stageX < rc.stage.candle.right &&
-          ev.stageY > rc.stage.candle.top &&
-          ev.stageY <= rc.stage.profit.bottom ) {
-
-        window.window.visible = true;
-
-        infoLayer.x = ev.stageX > rc.stage.candle.right - WIDTH -10 ? ev.stageX-15-WIDTH : ev.stageX+15;
-        infoLayer.y = ev.stageY > rc.stage.profit.bottom - HEIGHT -10 ? ev.stageY-15-HEIGHT : ev.stageY+15;
-
-        var daten:Number = model.positionManager.toDate(ev.stageX-rc.stage.candle.left-2);
-        daten = Math.ceil( daten / model.scaleTime ) * model.scaleTime;
-
-        // x,y
-        var date:Date = new Date();
-        date.setTime( daten*1000 );
-        textFields["x"].text = Util.formatDate( date );
-        if ( ev.stageY < rc.stage.candle.bottom ) {
-          var rate:Number = model.positionManager.toRate(
-              rc.stage.candle.bottom - ev.stageY, rc.stage.candle.height);
-          var l:int = 5 - (rate == 0 ? 1 : Math.log(rate)*Math.LOG10E);
-          textFields["y"].text = rate.toFixed(l);
-        } else if ( ev.stageY > rc.stage.profit.top ) {
-          var profit:Number = model.positionManager.toProfit(
-              rc.stage.profit.bottom - ev.stageY, rc.stage.profit.height);
-          textFields["y"].text = Math.ceil(profit/100)*100;
+    public function setPosition( x:int, y:int ):void {
+        var stageWidth:int = rc.stage.width;
+        var stageHeight:int = rc.stage.height;
+        if ( model.rateDatas &&
+            x >= rc.stage.candle.left+1 &&
+            x < rc.stage.candle.right &&
+            y > rc.stage.candle.top &&
+            y <= rc.stage.profit.bottom ) {
+    
+          window.window.visible = true;
+    
+          infoLayer.x = x > rc.stage.candle.right - WIDTH -10 ? x-15-WIDTH : x+15;
+          infoLayer.y = y > rc.stage.profit.bottom - HEIGHT -10 ? y-15-HEIGHT : y+15;
+    
+          var daten:Number = model.positionManager.toDate(x-rc.stage.candle.left-2);
+          daten = Math.ceil( daten / model.scaleTime ) * model.scaleTime;
+    
+          // x,y
+          var date:Date = new Date();
+          date.setTime( daten*1000 );
+          textFields["x"].text = Util.formatDate( date );
+          if ( y < rc.stage.candle.bottom ) {
+            var rate:Number = model.positionManager.toRate(
+                rc.stage.candle.bottom - y, rc.stage.candle.height);
+            var l:int = 5 - (rate == 0 ? 1 : Math.log(rate)*Math.LOG10E);
+            textFields["y"].text = rate.toFixed(l);
+          } else if ( y > rc.stage.profit.top ) {
+            var profit:Number = model.positionManager.toProfit(
+                rc.stage.profit.bottom - y, rc.stage.profit.height);
+            textFields["y"].text = Math.ceil(profit/100)*100;
+          } else {
+            textFields["y"].text = "-";
+          }
+    
+          // レート
+          updateRate( daten );
+    
+          // 収益
+          updateProfit(daten);
+    
         } else {
-          textFields["y"].text = "-";
+          window.window.visible = false;
         }
-
-        // レート
-        updateRate( daten );
-
-        // 収益
-        updateProfit(daten);
-
-      } else {
-        window.window.visible = false;
-      }
+    }
+    
+    public function onMouseMove( ev:MouseEvent ):void {
+        setPosition(ev.stageX, ev.stageY)
     }
     private function updateRate( date:Number ):void {
       if ( model.rateDatas ) {

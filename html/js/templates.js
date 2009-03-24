@@ -4,7 +4,7 @@ namespace( "fx.template" )
 
 fx.template.Templates = {
   common: {
-    loading : '<img src="./img/loading.gif" alt="loading.." />',
+    loading : '<img src="./img/loading.gif"  alt="loading.." title="loading.." />',
     date: {
       d:"日", m:"月", y:"年",
       h:"時間", mm: "分", s:"秒"
@@ -21,9 +21,22 @@ fx.template.Templates = {
       agent: "エージェント:エージェントの作成/編集",
       sharedLib: "エージェント:共有ライブラリの作成/編集"
     },
+    desc: {
+        agent: "※エージェントを作成・編集します。一覧からファイルを選択して編集、または追加ボタンから追加して下さい。<br/>"
+          + "※改変後のコードは次にエージェントを使用した場合に有効になります。",
+        sharedLib:  "※共有ライブラリを作成・編集します。一覧からファイルを選択して編集、または追加ボタンから追加して下さい。<br/>"
+          + "※改変後のコードは次にライブラリのクラスや関数を使用した場合に有効になります。"
+    },
+    saved : {
+      error : new Template(
+          '<span class="problem">※コンパイルエラー</span> <span style="color: #FF3366;">( #{now} ) <br/>' +
+          ' #{result}</span>'),
+      success : new Template('※保存しました。 ( #{now} )')
+    },
+    dosave : "未保存のデータがあります。保存しますか?",
     add : {
       error : new Template(
-        '<div class="warn_msg">※#{error}</div>'
+        '<div class="problem">※#{error}</div>'
       ),
       body : new Template(
         "追加するファイル名を入力してください。<br/>" +
@@ -121,7 +134,19 @@ fx.template.Templates = {
       '            <tr><td class="label small" >推定所要時間</td><td class="value">#{time} </td></tr>' +
       '        </table>'),
       error: "<span class='problem'>※開始日、終了日の設定が不正です。</span>"
+    },
+    start : {
+      error: new Template("<span class='problem'>※テストの開始に失敗しました。" +
+      		"<pre style='width:350px;height:200px;overflow:scroll;font-size:11px;font-weight:normal'>#{error}</pre>" +
+      		"</span>")
     }
+  },
+  rtsetting : {
+    apply: {
+        error: new Template("<span class='problem'>※設定の反映に失敗しました。" +
+            "<pre style='width:350px;height:200px;overflow:scroll;font-size:11px;font-weight:normal'>#{error}</pre>" +
+            "</span>")
+      }
   },
   submenu : {
     info : {

@@ -28,8 +28,16 @@ fx.ui.pages.AgentEditorPage = function() {
   }, fx.template.Templates.common.button.del);
   this.removeButton.setEnable( true );
 
+  this.saveButton = new util.Button("agent-edit_save", "save", function() {
+    if ( !self.editingFile ) { return; }
+    var newData = agent_editor.getCode();
+    newData = newData.strip();
+    self.save(true,self.editingFile, self.target, newData);
+  }, fx.template.Templates.common.button.save);
+  this.saveButton.setEnable( false );
+  
   // 自動保存するためのタイマー
-  this.autoSave = new util.Timer( 1000*10, function(){ self.save(); }, false );
+//  this.autoSave = new util.Timer( 1000*10, function(){ self.save(); }, false );
 }
 fx.ui.pages.AgentEditorPage.prototype = {
 
@@ -38,11 +46,15 @@ fx.ui.pages.AgentEditorPage.prototype = {
    * 戻り値としてfalseを返すと遷移をキャンセルする。
    */
   from : function(toId) {
-    // 変更を強制的に反映するため、一旦保存
-    this.save();
     // 自動更新タイマーを停止
-    this.autoSave.stop();
-
+//    this.autoSave.stop();
+  
+    // 変更を強制的に反映するため、一旦保存
+    var self = this;
+    this.saveIfNotSaved(function(){
+      self.clearEdit();
+    });
+    
     // ページを非表示
     document.getElementById(this.elementId).style.display = "none";
     this.topicPath.set("");
@@ -66,14 +78,19 @@ fx.ui.pages.AgentEditorPage.prototype = {
         ? fx.template.Templates.agentEditor.topicPath.agent
         : fx.template.Templates.agentEditor.topicPath.sharedLib );
 
+    document.getElementById("agent_edit_desc").innerHTML =  
+      this.target == "agent" ?  fx.template.Templates.agentEditor.desc.agent : fx.template.Templates.agentEditor.desc.sharedLib;
+    
+    this.clearEdit();
+    
     // ファイル一覧を更新
     this.initialize();
-    // 自動更新タイマーを開始
-    this.autoSave.start();
   },
 
   initialize: function( ) {
     var self = this;
+    self.editingFile = null;
+    agent_editor.setCode("\n");
     this.agentFileListTable.initialize();
     this.agentFileListTable.table.subscribe("rowSelectEvent", function(ev){
     	self.selectionChanged();
@@ -81,10 +98,14 @@ fx.ui.pages.AgentEditorPage.prototype = {
     this.agentFileListTable.table.subscribe("rowUnselectEvent", function(ev){
     	self.selectionChanged();
     });
+    this.agentFileListTable.loading(true);
     this.listAgentFiles( true, function( data ) {
       self.agentFiles = data;
       self.agentFileListTable.setData(data);
+      self.agentFileListTable.loading(false);
       self.selectionChanged();
+      // 自動更新タイマーを開始
+//      self.autoSave.start();
     }, null ); // TODO
   },
 
@@ -134,7 +155,7 @@ fx.ui.pages.AgentEditorPage.prototype = {
                   + fx.template.Templates.agentEditor.add.body.evaluate({ "text" : text })
                 return false;
             } else {
-                self.saveFile( text, "", function(){
+                self.saveFile( text, self.target, "", function(){
                     self.listAgentFiles( true, function( data ) {
                           self.agentFiles = data;
                           self.agentFileListTable.setData(data);
@@ -206,16 +227,71 @@ fx.ui.pages.AgentEditorPage.prototype = {
       ]
     });
   },
-  save: function(){
-    if ( !this.editingFile ) { return; }
-    var newData = agent_editor.getCode();
+  save: function( showResult, editingFile, mode, newData ){
     var self = this;
-    if ( self.prevCode == newData )  { return; }
-    this.saveFile( this.editingFile, newData, function(){
+    this.saveFile( editingFile, mode,  newData, function(result){
+      // 結果を表示しない == 別画面に移動する場合は、前のコードは不要なので変更しない。
+       if (!showResult) { return; }
        self.prevCode = newData;
+       if ( result == "success" ) {
+         document.getElementById("agent_edit_msg").innerHTML = 
+           fx.template.Templates.agentEditor.saved.success.evaluate({ "now" : util.formatDate( new Date() ) });
+       } else {
+         document.getElementById("agent_edit_msg").innerHTML = 
+           fx.template.Templates.agentEditor.saved.error.evaluate({ "now" : util.formatDate( new Date() ), "result":result} );
+       }
     }, null ); // TODO
   },
-
+  /**
+   * 未保存かどうかチェックして、未保存でかつtrueであれば保存を実行する。
+   */
+  saveIfNotSaved: function( callback ){
+    // 編集中でない
+    if ( !this.editingFile ) {
+      if (callback) { callback(); }
+      return true; 
+    }
+    var editingFile = this.editingFile;
+    var target = this.target;
+    
+    // コードが変更されていない
+    var newData = agent_editor.getCode();
+    newData = newData.strip();
+    var self = this;
+    if ( self.prevCode == newData )  { 
+      if (callback) { callback(); }
+      return true; 
+    }
+    
+    // 確認ダイアログを表示
+    this.dialog.show( "input", {
+      message : fx.template.Templates.agentEditor.dosave,
+      buttons : [
+        { type:"yes", action: function(dialog){
+            self.save(false, editingFile, target, newData);
+            if (callback) { callback(); }
+            return true;
+        }},
+        { type:"no",
+          alt: fx.template.Templates.common.button.cancel,
+          key: "Esc", 
+          action: function(dialog){
+            if (callback) { callback(); }
+            return true;
+          }
+        }
+      ]
+    });
+  },
+  /**
+   * 編集なし状態にします。
+   */
+  clearEdit : function(){
+    this.editingFile = null;
+    agent_editor.setCode("\n");
+    this.saveButton.setEnable( false );
+    document.getElementById("agent_edit_msg").innerHTML = "";
+  },
   selectionChanged: function() {
 
     // 選択されている行を取得
@@ -239,33 +315,37 @@ fx.ui.pages.AgentEditorPage.prototype = {
     }
     //  削除の状態更新
     this.removeButton.setEnable(removeEnable);
+    this.saveButton.setEnable(false);
 
     // エディタのデータを更新
-    self.save();
-    if ( data ) {
-	    // 変更を強制的に反映するため、一旦保存
-	    self.editingFile = null;
-	    document.getElementById("agent-editor-file-name").innerHTML=
-	      fx.template.Templates.common.loading;
-	    self.getFile( data.name, function( body) {
-	      self.editingFile = data.name;
-	      self.prevCode = body;
-	      if ( agent_editor.textarea.readOnly ) {
-	      	agent_editor.toggleReadOnly();
-	      }
-	      agent_editor.setCode(body);
-	      agent_editor.editor.syntaxHighlight('init');
-	      document.getElementById("agent-editor-file-name").innerHTML= data.name;
-	    }, null ); // TODO
-    } else {
-	    self.save();
-	    self.editingFile = null;
-      agent_editor.setCode("");
-      agent_editor.editor.syntaxHighlight('init');
-      if ( !agent_editor.textarea.readOnly ) {
-      	agent_editor.toggleReadOnly();
+    // 保存確認
+    self.saveIfNotSaved( function(){ 
+      if ( data ) {
+  	    self.editingFile = null;
+  	    document.getElementById("agent-editor-file-name").innerHTML=
+  	      fx.template.Templates.common.loading;
+  	    self.getFile( data.name, function( body ) {
+  	      body = body.strip();
+  	      self.editingFile = data.name;
+  	      self.prevCode = body;
+  	      if ( agent_editor.textarea.readOnly ) {
+  	      	agent_editor.toggleReadOnly();
+  	      }
+  	      if( body == "" ) body = "\n" // 空文字をcodePressに設定するとバグるので対策。
+  	      agent_editor.setCode(body);
+  	      agent_editor.editor.syntaxHighlight('init');
+  	      document.getElementById("agent-editor-file-name").innerHTML= data.name;
+  	      document.getElementById("agent_edit_msg").innerHTML = "";
+  	      self.saveButton.setEnable( true );
+  	    }, null ); // TODO
+      } else {
+  	    self.clearEdit();
+        agent_editor.editor.syntaxHighlight('init');
+        if ( !agent_editor.textarea.readOnly ) {
+        	agent_editor.toggleReadOnly();
+        }
       }
-    }
+    });
   },
 
   /**
@@ -301,8 +381,8 @@ fx.ui.pages.AgentEditorPage.prototype = {
    * @param {Function} success 成功時のコールバック
    * @param {Function} fail 失敗時のコールバック
    */
-  saveFile : function( file, content, success, fail ) {
-     this.agentServiceStub.put_file( file, content, this.target, success, fail );
+  saveFile : function( file, target, content, success, fail ) {
+     this.agentServiceStub.put_file( file, content, target, success, fail );
   },
   /**
    * エージェントファイルを削除する。
