@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name = "jiji"
-  spec.version = "0.1.1"
+  spec.version = "1.0.0"
   spec.summary = "open and free fx auto trade system."
   spec.author = "Masaya Yamauchi"
   spec.email = "y-masaya@red.hot.co.jp"
@@ -360,6 +360,8 @@ Gem::Specification.new do |spec|
     "html/js/utils.js",
     "html/js/uuid.js",
     "html/swf/chart.swf",
+    "base/agents/moving_average_agent.rb",
+    "base/shared_lib/moving_average.rb",
     "lib/jiji/agent/agent.rb",
     "lib/jiji/agent/agent_manager.rb",
     "lib/jiji/agent/agent_registry.rb",
@@ -562,7 +564,7 @@ Gem::Specification.new do |spec|
     "test/service/test_RateService.rb",
     "test/testutils.rb",
     "test/test_AgentManager.rb",
-    "test/test_AgentRegistory.rb",
+    "test/test_AgentRegistry.rb",
     "test/test_BackTestCollector.rb",
     "test/test_BlockToSession.rb",
     "test/test_Collector.rb",
@@ -644,7 +646,7 @@ Gem::Specification.new do |spec|
     "test/service/test_RateService.rb",
     "test/testutils.rb",
     "test/test_AgentManager.rb",
-    "test/test_AgentRegistory.rb",
+    "test/test_AgentRegistry.rb",
     "test/test_BackTestCollector.rb",
     "test/test_BlockToSession.rb",
     "test/test_Collector.rb",

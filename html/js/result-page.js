@@ -92,7 +92,7 @@ fx.ui.pages.LogResultPage = function() {
   var self = this;
   this.updateButton = new util.Button("subpage-log__update", "update", function() {
     self.update();
-  });
+  }, fx.template.Templates.common.button.update);
   this.updateButton.setEnable( true );
 }
 fx.ui.pages.LogResultPage.prototype = {
@@ -118,7 +118,7 @@ fx.ui.pages.LogResultPage.prototype = {
     var logEl = document.getElementById( "subpage-log_log" );
     logEl.innerHTML= fx.template.Templates.common.loading;
     this.outputServiceStub.get_log( this.currentProcessId, function( log ) {
-      logEl.innerHTML = "<pre style='line-height: 110%;'>" + log + "</pre>";
+      logEl.innerHTML = "<pre style='line-height: 110%;'>" + log.escapeHTML() + "</pre>";
     }, function(){}  ); // TODO
   }
 }
@@ -135,7 +135,7 @@ fx.ui.pages.TradeResultPage = function() {
   this.agentResultListTable.initialize();
   this.updateButton = new util.Button("subpage-trade__update", "update_s", function() {
     self.update();
-  });
+  }, fx.template.Templates.common.button.update);
   this.updateButton.setEnable( true );
 }
 fx.ui.pages.TradeResultPage.prototype = {
@@ -192,7 +192,7 @@ fx.ui.pages.TradeResultPage.prototype = {
           this.dialog.show( "warn", {
             message : "表示範囲に数値が入力されていません。",
             buttons : [
-              { type:"ok" }
+              { type:"ok", alt: fx.template.Templates.common.button.ok, key: "Enter" }
             ]
           } );
           return;
@@ -200,17 +200,17 @@ fx.ui.pages.TradeResultPage.prototype = {
       } else {
          // 入力がなければ今週のデータを表示
         var now = new Date();
-        var end = new Date( now.getFullYear(), now.getMonth(), now.getDay() -7  );
-        startDate = new Date( now.getFullYear(), now.getMonth(), 1  ).getTime()/1000;
-        endDate = end.getTime()/1000;
+        var start = new Date( now.getFullYear(), now.getMonth(), now.getDate()-7 );
+        startDate = start.getTime()/1000;
+        endDate = now.getTime()/1000;
 
         // フィールドにも設定しておく
         document.getElementById("subpage-trade_range-year").value = now.getFullYear();
         document.getElementById("subpage-trade_range-month").value = now.getMonth()+1;
-        document.getElementById("subpage-trade_range-day").value = 1;
+        document.getElementById("subpage-trade_range-day").value = start.getDate();
         document.getElementById("subpage-trade_range-end-year").value = now.getFullYear();
         document.getElementById("subpage-trade_range-end-month").value = now.getMonth()+1;
-        document.getElementById("subpage-trade_range-end-day").value = end.getDate();
+        document.getElementById("subpage-trade_range-end-day").value = now.getDate();
       }
     } else {
       // バックテストの場合、全テストが対象
@@ -261,7 +261,7 @@ fx.ui.pages.TradeResultPage.prototype = {
     for( var j in pairList ) {
       if (typeof pairList[j] == "function" ) continue;
       all.pair += fx.template.Templates.submenu.trade.pair.evaluate(
-          {pair:j,value:pairList[j]} );
+          {pair:j.escapeHTML(),value:pairList[j]} );
     }
     all = this.finish( all, true );
     var tmp = [];
@@ -427,14 +427,16 @@ fx.ui.TradeListTable.prototype = util.merge( util.BasicTable, {
             cell.innerHTML = "不明"; break;
         }
       }},
-      {key:"pair", label:"通貨ペア", sortable:true, resizeable:true, width:50 },
+      {key:"pair", label:"通貨ペア", sortable:true, resizeable:true, formatter: function( cell, record, column, data){
+        cell.innerHTML = String(data).escapeHTML();
+      }, width:50 },
       {key:"rate", label:"レート", sortable:true, resizeable:true,width:50 },
       {key:"fix_rate", label:"決済レート", sortable:true, resizeable:true,width:50,formatter: function( cell, record, column, data){
         cell.innerHTML =  data ? data : "-";
       } },
       {key:"count", label:"数量", sortable:true, resizeable:true,width:30 },
       {key:"trader", label:"エージェント", sortable:true, resizeable:true,width:50,formatter: function( cell, record, column, data){
-        cell.innerHTML =  data ? data : "-";
+        cell.innerHTML =  data ? data.escapeHTML() : "-";
       } },
       {key:"date", label:"取引日時", sortable:true, resizeable:true,width:118, formatter: function( cell, record, column, data){
           var d = new Date(data*1000);
@@ -478,7 +480,9 @@ fx.ui.AgentResultListTable.prototype = util.merge( util.BasicTable, {
   initialize: function() {
     var self = this;
     var columnDefs = [
-      {key:"agentName", label:"名前", sortable:true, resizeable:true,width:100 },
+      {key:"agentName", label:"名前", sortable:true, resizeable:true, formatter: function( cell, record, column, data){
+          cell.innerHTML =  String(data).escapeHTML();
+      }, width:100 },
       {key:"totalProfitOrLoss", label:"損益合計", sortable:true, resizeable:true,width:70, formatter: function( cell, record, column, data){
         cell.innerHTML = "<div style='text-align:right;'>"
           + fx.ui.pages.TradeResultPage.prototype.decorateProfitOrLoss(data) 
@@ -571,6 +575,8 @@ fx.ui.pages.InfoResultPage.prototype = {
     // ロード中に変更
     infoEl.innerHTML= fx.template.Templates.common.loading;
 
+    // セレクタを初期化。
+    this.agentSelector.setAgents([]);
     var self = this;
     this.processServiceStub.get( this.currentProcessId, function( p ) {
       if ( self.currentProcessId == "rmt" ) {
@@ -583,8 +589,8 @@ fx.ui.pages.InfoResultPage.prototype = {
         var startStr = s.getFullYear() + "-"  + (s.getMonth()+1) + "-"  + s.getDate();
         var endStr   = e.getFullYear() + "-"  + (e.getMonth()+1) + "-"  + e.getDate();
 	      infoEl.innerHTML = fx.template.Templates.submenu.info.info.evaluate( {
-	        name: p.name,
-	        memo: p.memo.replace(/^\s+|\s+$/g, '') || "&nbsp;",
+	        name: p.name.escapeHTML(),
+	        memo: p.memo.escapeHTML().replace(/^\s+|\s+$/g, '') || "&nbsp;",
 	        range: startStr + " ～ " + endStr
 	      });
       }
@@ -648,8 +654,8 @@ fx.ui.pages.GraphSettingResultPage.prototype = {
                 colorsBody += '<div id="submenu-graph_color_' + index + '_' + k + '"></div>';
               }
               itemBody += fx.template.Templates.submenu.graph.item.evaluate( {
-                name: j,
-                agentName: i,
+                name: j.escapeHTML(),
+                agentName: i.escapeHTML(),
                 checked: outs[i][j]["visible"] == false ? "" : 'checked="checked"',
                 id : index,
                 colors: colorsBody
@@ -657,12 +663,12 @@ fx.ui.pages.GraphSettingResultPage.prototype = {
               index += 1;
             }
             str += fx.template.Templates.submenu.graph.agent.evaluate( {
-              agentName: self.agentNameMap[i] || "(不明)",
+              agentName: self.agentNameMap[i].escapeHTML() || "(不明)",
               items: itemBody
             } );
           }
-          el.innerHTML = str || '<div style="margin:10px 0px 0px 0px;">(　グラフはありません。)</div>';
-
+          el.innerHTML = str || '<div style="margin:10px 0px 0px 0px;">( グラフはありません。)</div>';
+          
           // イベントを割り当て
           self.pickers = [];
           for ( var i=0; i<index; i++ ) {
@@ -681,7 +687,6 @@ fx.ui.pages.GraphSettingResultPage.prototype = {
               // 色
               var index = i;
               var colorChanged = function() {
-                debug(index);
                 var colors = [];
                 for ( var j = 0, n=self.pickers[index].length;j<n;j++ ) {
                   colors.push( self.pickers[index][j].get());

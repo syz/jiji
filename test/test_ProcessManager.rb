@@ -241,8 +241,8 @@ class ProcessManagerTest <  RUNIT::TestCase
     }]
 
     # プロセスを追加
-    pid = @mng.create_back_test( "test", "memo", Time.gm( 2008, 8, 21 ).to_i, Time.gm( 2008, 8, 21, 3 ).to_i, agents )["id"]
-    sleep 10
+    pid = @mng.create_back_test( "test", "memo", Time.gm( 2008, 8, 21 ).to_i, Time.gm( 2008, 8, 22 ).to_i, agents )["id"]
+    sleep 1
 
     # プロセスを取得
     process = @mng.get( pid )
@@ -251,7 +251,7 @@ class ProcessManagerTest <  RUNIT::TestCase
     assert_equals process.id, pid
 
     #別のプロセスを追加
-    pid2 = @mng.create_back_test( "test2", "memo", Time.gm( 2008, 8, 21 ).to_i, Time.gm( 2008, 8, 21, 3 ).to_i, agents )["id"]
+    pid2 = @mng.create_back_test( "test2", "memo", Time.gm( 2008, 8, 21 ).to_i, Time.gm( 2008, 8, 22 ).to_i, agents )["id"]
     sleep 1
 
     #別のプロセスは待機中になる。
@@ -282,7 +282,7 @@ class ProcessManagerTest <  RUNIT::TestCase
     assert_equals process.id, pid2
 
     # 別のプロセスを追加して削除
-    pid3 = @mng.create_back_test( "test3", "memo", Time.gm( 2008, 8, 21 ).to_i, Time.gm( 2008, 8, 21, 3 ).to_i, agents )["id"]
+    pid3 = @mng.create_back_test( "test3", "memo", Time.gm( 2008, 8, 21 ).to_i, Time.gm( 2008, 8, 22 ).to_i, agents )["id"]
     sleep 1
     process = @mng.get( pid3 )
     assert_equals process.state, :WAITING
@@ -303,11 +303,11 @@ class ProcessManagerTest <  RUNIT::TestCase
     
     ##  待機状態のまま再起動
     # プロセスを追加
-    pid4 = @mng.create_back_test( "test4", "memo", Time.gm( 2008, 8, 21 ).to_i, Time.gm( 2008, 8, 21, 3 ).to_i, agents )["id"]
+    pid4 = @mng.create_back_test( "test4", "memo", Time.gm( 2008, 8, 21 ).to_i, Time.gm( 2008, 8, 22 ).to_i, agents )["id"]
     sleep 10
 
     #別のプロセスを追加
-    pid5 = @mng.create_back_test( "test5", "memo", Time.gm( 2008, 8, 21 ).to_i, Time.gm( 2008, 8, 21, 3 ).to_i, agents )["id"]
+    pid5 = @mng.create_back_test( "test5", "memo", Time.gm( 2008, 8, 21 ).to_i, Time.gm( 2008, 8, 22 ).to_i, agents )["id"]
 
     process = @mng.get( pid4 )
     assert_equals process.state, :RUNNING

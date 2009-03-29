@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
-$: << "../lib"
-
+require 'rubygems'
 require 'jiji/command'
 JIJI::Command.new.run( ARGV )

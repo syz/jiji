@@ -35,8 +35,8 @@ class AgentManagerTest <  RUNIT::TestCase
     logger = @permitter.proxy( logger, [/^(info|debug|warn|error|fatal)$/] )
     @client = JIJI::SingleClickClient.new( ACCOUNT, CONF, logger )
 
-    @registory_mock = Object.new
-    class << @registory_mock
+    @registry_mock = Object.new
+    class << @registry_mock
       def output( agent_name, dir )
         output = JIJI::Output.new( agent_name, "#{dir}/out" )
         output = @permitter.proxy( output, [/^(get|each|put|<<)$/], [/^get$/] )
@@ -46,7 +46,7 @@ class AgentManagerTest <  RUNIT::TestCase
         @permitter = permitter
       end
     end
-    @registory_mock.permitter = @permitter
+    @registry_mock.permitter = @permitter
 
     operator = JIJI::RmtOperator.new( @client, logger, nil )
     operator.conf = CONF
@@ -58,7 +58,7 @@ class AgentManagerTest <  RUNIT::TestCase
     @m.conf = CONF
     @m.trade_result_dao = trade_result_dao
     @m.client = @client
-    @m.registory = @registory_mock
+    @m.registry = @registry_mock
   end
 
   def teardown

@@ -12,7 +12,7 @@ require "test_SingleClickClient"
 require "test_BlockToSession"
 require "test_AgentManager"
 
-require "test_AgentRegistory"
+require "test_AgentRegistry"
 require "test_Configuration"
 require "test_CSV"
 require "test_Operator"

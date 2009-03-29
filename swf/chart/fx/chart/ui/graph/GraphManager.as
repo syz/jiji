@@ -83,6 +83,7 @@ package fx.chart.ui.graph {
         } else {
           // 取得済みであればレイヤーを表示するだけ。
           target.graph.setVisible(true);
+          target.draw();
         }
       }
     }
@@ -92,6 +93,7 @@ package fx.chart.ui.graph {
         var target:GraphInfo = infos[name[0]][name[1]];
         target.visible = false;
         target.graph.setVisible(false);
+        target.draw();
       }
     }
     /**
@@ -122,7 +124,7 @@ package fx.chart.ui.graph {
         if ( names.length <= 0 ) { return; }
         ctrl.requestOutputDatas( names, function( map:Object ):void {
           names.forEach( function( item:*,i:int,arr:Array ):void {
-              if ( map[item[0]][item[1]] ) {
+              if ( map[item[0]] && map[item[0]][item[1]] ) {
                   infos[item[0]][item[1]].datas = map[item[0]][item[1]] ;
                   // グラフ表示
                   if ( infos[item[0]][item[1]].visible ) { 

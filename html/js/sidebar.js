@@ -131,7 +131,10 @@ fx.ui.SideBar.prototype = {
     this.dialog.show( "input", {
         message : "バックテストを削除します。よろしいですか?",
         buttons : [
-           { type:"ok", action: function(dialog){
+           { type:"ok", 
+             alt: fx.template.Templates.common.button.ok, 
+             key: "Enter",
+             action: function(dialog){
              self.processServiceStub.delete_test( processId, function(p) {
                var tmp = [];
                for ( var i=0,n=self.runnings.length;i<n;i++ ) {
@@ -144,7 +147,7 @@ fx.ui.SideBar.prototype = {
 
              }, function(){} ); // TODO
            } },
-           { type:"cancel" }
+           { type:"cancel", alt: fx.template.Templates.common.button.cancel, key: "Esc" }
         ]
     } );
   },
@@ -190,7 +193,7 @@ fx.ui.SideBar.prototype = {
       e.style.display = "none";
       state.innerHTML = this.stateToDisplayName( p.state == "RUNNING" ? "FINISHED" : p.state );
       // 実行結果へのリンクを有効化する。
-      name.innerHTML = '<a href="javascript:fx.app.sideBar.to( \'sidebar_result_' + p.id + '\' );">' + p.name + "</a>";
+      name.innerHTML = '<a href="javascript:fx.app.sideBar.to( \'sidebar_result_' + p.id + '\' );">' + p.name.escapeHTML() + "</a>";
     }
   },
 
@@ -203,9 +206,9 @@ fx.ui.SideBar.prototype = {
     div.id = "process_" + process.id;
     div.innerHTML = fx.template.Templates.sidebar.process.evaluate({
        id : process.id,
-       name : process.name,
+       name : process.name.escapeHTML(),
        date : util.formatDate(new Date(process.create_date*1000)),
-       state : this.stateToDisplayName( process.state)
+       state : this.stateToDisplayName(process.state)
     });
     return div;
   },

@@ -15,7 +15,10 @@ module JIJI
 
     # コンストラクタ
     # 再起動後の復元の場合、プロパティを指定しないこと。この場合設定ファイルからロードされる。
-    def initialize( id, process_dir, agent_manager, props=nil, ignore_error=false )
+    def initialize( id, process_dir, agent_manager, props=nil, registry=nil, ignore_error=false )
+      
+      is_recreate = props == nil
+      @registry = registry
       @id = id
       @agent_manager = agent_manager
       @process_dir = process_dir
@@ -26,7 +29,7 @@ module JIJI
       FileUtils.mkdir_p dir
 
       prop_file = "#{dir}/props.yaml"
-      if props
+      if !is_recreate
         @props = props
         @props["agents"] = [] unless @props.key? "agents"
         save_props
@@ -40,8 +43,20 @@ module JIJI
         }
         @props["agents"] = [] unless @props.key? "agents"
       end
-      load_agent(ignore_error)
       
+      # 新規作成の場合はエージェントをロード
+      # 再起動後の再作成時は、アウトプロットのみ作成。
+      @outputs = {}
+      if !is_recreate
+        load_agent(ignore_error)
+      else
+        if @props && @props["agents"]
+          @props["agents"].each {|v|
+            @outputs[v["id"]] = @registry.output( @id, v["id"] )
+          }
+        end
+      end
+          
       # 取引の有効状態を更新
       @agent_manager.operator.trade_enable =
         @props["trade_enable"] ? true : false
@@ -135,7 +150,9 @@ module JIJI
     attr :observer_manager, true
     attr :process_dir, true
     attr :agent_manager, true
-
+    attr :outputs, true
+    attr :registry, true
+    
   private
 
     # 任意のエージェントの設定を更新する。
@@ -173,10 +190,12 @@ module JIJI
           begin
 	          agent = agent_manager.agent_registry.create( v["class"], v["properties"] )
 	          agent_manager.add( v["id"], agent, v["name"] )
+            @outputs[v["id"]] = agent.output
           rescue Exception
             raise $! unless ignore_error 
             # リアルトレードの場合、停止中にエージェントが破棄された場合を考慮し
-            # エージェントの初期化で失敗しても無視する。
+            # エージェントの初期化で失敗しても無視し、出力先だけ作成
+            @outputs[v["id"]] = @registry.output( @id, v["id"] )
           end
 	      }
       end

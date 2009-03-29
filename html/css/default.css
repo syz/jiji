@@ -262,6 +262,7 @@ div.button {
   float: left;
   margin-right: 10px;
 }
+div.button * { font-size: 0px; }
 
 /* white line  -------------------------------------------------------------- */
 div.wl {

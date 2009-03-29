@@ -36,14 +36,14 @@ class ProcessTest <  RUNIT::TestCase
     agent_mng.conf = CONF
     agent_mng.conf.set( [:agent,:safe_level], 0)
 
-    registory_mock = Object.new
-    class << registory_mock
+    registry_mock = Object.new
+    class << registry_mock
       def output( agent_name, dir )
         output = JIJI::Output.new( agent_name, "#{dir}/out" )
         return output
       end
     end
-    agent_mng.registory = registory_mock
+    agent_mng.registry = registry_mock
 
     p1 = JIJI::Process.new( "1", @dir, agent_mng, {} )
     assert_equals p1.id, "1"
@@ -138,7 +138,7 @@ class ProcessTest <  RUNIT::TestCase
 
 
     # 再読み込み / ファイルに保存された設定値が読み込まれる。
-    p1 = JIJI::Process.new( "1",  @dir, agent_mng )
+    p1 = JIJI::Process.new( "1",  @dir, agent_mng, nil, registry_mock )
     assert_equals p1.id, "1"
     assert_equals p1.agent_manager, agent_mng
     assert_equals p1["x"], "xxx"
@@ -150,7 +150,7 @@ class ProcessTest <  RUNIT::TestCase
     assert_equals p1.agent_manager.operator.trade_enable, false
 
     # 別のプロセスを作成 / 設定値は別途保持される。
-    p2 = JIJI::Process.new( "2", @dir, agent_mng, {} )
+    p2 = JIJI::Process.new( "2", @dir, agent_mng, {}, registry_mock )
     assert_equals p2.id, "2"
     assert_equals p2.agent_manager, agent_mng
     assert_equals p2["x"], nil

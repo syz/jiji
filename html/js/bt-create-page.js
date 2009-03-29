@@ -16,7 +16,7 @@ fx.ui.pages.BtCreatePage = function() {
   var self = this;
   this.startButton = new util.Button("bt-create__start", "start", function() {
     self.start();
-  });
+  }, fx.template.Templates.common.button.start);
   this.startButton.setEnable( true );
 
   // カレンダー
@@ -49,7 +49,11 @@ fx.ui.pages.BtCreatePage.prototype = {
     msg.style.display = "none";
 
     this.topicPath.set( "バックテスト:新規作成" );
-
+    
+    // 日付の設定パネルを初期化
+    var el = document.getElementById("bt-create__range-summary");
+    el.innerHTML = fx.template.Templates.btcreate.dateSummary.notSelect;
+    
     // 利用可能な日時
     var self = this;
     if ( this.startCalendar ) this.startCalendar.destroy();
@@ -91,7 +95,7 @@ fx.ui.pages.BtCreatePage.prototype = {
       this.dialog.show( "warn", {
         message : "エージェントの設定に問題があります。",
         buttons : [
-          { type:"ok" }
+          { type:"ok", alt: fx.template.Templates.common.button.ok, key: "Enter" }
         ]
       } );
       return;
@@ -102,7 +106,7 @@ fx.ui.pages.BtCreatePage.prototype = {
     if ( !name ) {
       this.dialog.show( "warn", {
         message : "名前が入力されていません。",
-        buttons : [ { type:"ok" }]
+        buttons : [ { type:"ok", alt: fx.template.Templates.common.button.ok, key: "Enter" }]
       } );
       return;
     }
@@ -112,7 +116,7 @@ fx.ui.pages.BtCreatePage.prototype = {
     if ( !startDate ) {
       this.dialog.show( "warn", {
         message : "開始日が入力されていないか、フォーマットが不正です。",
-        buttons : [ { type:"ok" }]
+        buttons : [ { type:"ok", alt: fx.template.Templates.common.button.ok, key: "Enter" }]
       } );
       return;
     }
@@ -121,14 +125,14 @@ fx.ui.pages.BtCreatePage.prototype = {
     if ( !endDate ) {
       this.dialog.show( "warn", {
         message : "終了日が入力されていないか、フォーマットが不正です。",
-        buttons : [{ type:"ok" }]
+        buttons : [{ type:"ok", alt: fx.template.Templates.common.button.ok, key: "Enter" }]
       } );
       return;
     }
     if ( endDate.getTime() <= startDate.getTime() ) {
       this.dialog.show( "warn", {
         message : "開始日または終了日が不正です。",
-        buttons : [{ type:"ok" }]
+        buttons : [{ type:"ok", alt: fx.template.Templates.common.button.ok, key: "Enter" }]
       } );
       return;
     }
@@ -139,7 +143,10 @@ fx.ui.pages.BtCreatePage.prototype = {
     this.dialog.show( "input", {
       message : "バックテストを開始します。よろしいですか?<br/>",
       buttons : [
-        { type:"ok", action: function(dialog){
+        { type:"ok", 
+          alt: fx.template.Templates.common.button.ok, 
+          key: "Enter",
+          action: function(dialog){
           var memo = document.getElementById("bt-create_memo").value;
           self.processServiceStub.new_test( name, memo,
             startDate.getTime()/1000, endDate.getTime()/1000, agents, function(info) {
@@ -154,11 +161,11 @@ fx.ui.pages.BtCreatePage.prototype = {
             msg.style.display = "block";
           },  function(error){
             self.dialog.show( "warn", {
-              message : fx.template.Templates.btcreate.start.error.evaluate({"error":error[0].error})
+              message : fx.template.Templates.btcreate.start.error.evaluate({"error":error[0].error.escapeHTML()})
             });
           } ); 
         } },
-        { type:"cancel" }
+        { type:"cancel", alt: fx.template.Templates.common.button.cancel, key: "Esc" }
       ]
     } );
   },

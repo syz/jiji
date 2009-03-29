@@ -38,6 +38,7 @@ util.Dialog = function() {
 
   this.dialog.style.visibility = "hidden";
   this.mask.style.visibility = "hidden";
+  this.keybind =  new util.KeyBind( {}, this.dialog ) ;
 }
 util.Dialog.prototype = {
   TIME : 10,
@@ -60,20 +61,20 @@ util.Dialog.prototype = {
     	this.header.style.display = "none";
     }
     
-    var keybind = { "Tab" : function(){} }; 
+    var bind = { "Tab" : function(){} }; 
     this.buttons.innerHTML = "";
     if ( params.buttons ) {
     	for ( var i = 0; i < params.buttons.length ; i++ ) {
-    		this.createButton( params.buttons[i], keybind );
+    		this.createButton( params.buttons[i], bind );
     	}
     } else {
     	this.createButton( {
     		id : "close", 
     		type : "close",
     		accesskey: "C",
-    	  key: "Enter"}, keybind);
+    	  key: "Enter"}, bind);
     }
-    new util.KeyBind( keybind, this.dialog ) ;
+    this.keybind.binding = bind; 
     
     // ダイアログを表示
     this.mask.style.visibility = "visible";
@@ -131,6 +132,8 @@ util.Dialog.prototype = {
       });
     }
     this.timer = setInterval(function(){ self.fadeDialog(1); }, this.TIME);
+    var as = this.buttons.getElementsByTagName( "a" );
+    if ( as && as[0] ) { as[0].focus(); }
     if ( params.init ) {
       params.init.call( null, this );
     }
@@ -199,6 +202,8 @@ util.Dialog.prototype = {
         }
       });
     	
+      this.keybind.binding = {};
+      
       this.dialog.style.visibility = "hidden";
       this.mask.style.visibility = "hidden";
       clearInterval(this.timer);

@@ -10,11 +10,20 @@ fx.template.Templates = {
       h:"時間", mm: "分", s:"秒"
     },
     button : {
+      start: "開始",
+      apply  : "適用",
+      update : "更新",
       add : "追加",
       del : "削除",
+      save : "保存",
       ok  : "OK",
-      cancel: "キャンセル"
+      cancel: "キャンセル",
+      yes  : "はい",
+      no: "いいえ"
     }
+  },
+  agentSelector: {
+    error : new Template( '<div class="problem">※#{error}</div>#{msg}')
   },
   agentEditor: {
     topicPath: {

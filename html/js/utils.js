@@ -488,7 +488,7 @@ util.TopicPath.prototype = {
   set: function( path ) {
     var el = document.getElementById( this.elementId );
     if ( path ) {
-      el.innerHTML =  "<li>" + path.split(":").join("</li><li>") + "</li>";
+      el.innerHTML =  "<li>" + path.escapeHTML().split(":").join("</li><li>") + "</li>";
     } else {
       el.innerHTML = "";
     }
@@ -529,7 +529,7 @@ util.DateInput.prototype = {
     var el = document.getElementById( this.elementId );
     el.innerHTML = this.template.evaluate( {
       elementId: this.elementId,
-      title: this.title
+      title: this.title.escapeHTML()
     } );
     this.calendar = new YAHOO.widget.Calendar(this.elementId+"_cal", {
         iframe:false,          // Turn iframe off, since container has iframe support.
@@ -647,9 +647,9 @@ util.ColorPicker.prototype = {
     var bottom = "";
     var current = top;
     var list = ["11","33","55","77","99","BB","DD","FF"];
-    for ( var g=0;g<list.length;g++  ) {
-      for ( var r=0;r<list.length;r++  ) {
-        for ( var b=0;b<list.length;b++  ) {
+    for ( var g=0,gn=list.length;g<gn;g++  ) {
+      for ( var r=0,rn=list.length;r<rn;r++  ) {
+        for ( var b=0,bn=list.length;b<bn;b++  ) {
           var c = list[r] + list[g] +list[b];
           str = '<td><div class="block" style="background-color:#' + c + ';border:1px solid #' + c + ';"></div></td>'
           if ( r <= 3 ) {
@@ -695,9 +695,13 @@ util.ColorPicker.prototype = {
     }
     for ( var i=0,n=blocks.length;i<n;i++ ) {
       if ( blocks[i] == el  ) { continue; }
-      YAHOO.util.Event.addListener(blocks[i], "mouseover", enter);
-      YAHOO.util.Event.addListener(blocks[i], "mouseout", out);
-      YAHOO.util.Event.addListener(blocks[i], "click", click);
+// IE7だとリスナ登録がやたら遅いので、直接イベントハンドラを割り当てる。
+//      YAHOO.util.Event.addListener(blocks[i], "mouseover", enter);
+//      YAHOO.util.Event.addListener(blocks[i], "mouseout", out);
+//      YAHOO.util.Event.addListener(blocks[i], "click", click);
+      blocks[i].onmouseover=enter;
+      blocks[i].onmouseout=out;
+      blocks[i].onclick=click;
     }
 
     YAHOO.util.Event.addListener(document.body, "click", function( ev ) {
@@ -733,6 +737,18 @@ util.ColorPicker.prototype = {
     return h.length == 1 ? "0"+h : h;
   }
 }
+
+///**テンプレートに、引数の文字列をエスケープする機能を追加*/
+//Template.prototype.evaluate_org = Template.prototype.evaluate;
+//Template.prototype.evaluate = function( object ) {
+//  for( var i in object ) {
+//    if ( Object.isFunction(object[i].escapeHTML) ) {
+//      object[i] = object[i].escapeHTML();
+//    }
+//  }
+//  return this.evaluate_org( object );
+//}
+
 
 /**制御文字*/
 util.CONTROLL_CODE = /[\x00-\x1F\x7F]/

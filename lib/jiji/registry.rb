@@ -131,7 +131,7 @@ module JIJI
           c = JIJI::AgentManager.new( id, r.agent_registry, r.process_logger(id), failsafe )
           c.operator = r.operator(id, false, nil) # 作成段階では常に取引は行なわない。
           c.client   = r.client
-          c.registory = r
+          c.registry = r
           c.conf = r.conf
           c.trade_result_dao = r.trade_result_dao(id)
           c
@@ -179,7 +179,7 @@ module JIJI
 
         # RMTプロセス
         r.register( :rmt_process ) {
-          c = JIJI::Process.new("rmt", r.process_dir, r.agent_manager("rmt",true), nil, true)
+          c = JIJI::Process.new("rmt", r.process_dir, r.agent_manager("rmt",true), nil, r, true)
           c.observer_manager = r.rmt_observer_manager
           c.collector = r.rmt_collector
           c
@@ -188,7 +188,7 @@ module JIJI
         r.register( :backtest_process, :model=>:multiton_initialize ) {|c,p,id, props|
           # 既存のバックテストを読み込む場合、プロパティはnil
           # このときエージェントの初期化で失敗しても無視する。(テスト実行後にエージェントが書き換えられた場合に起こりえる。)
-          c = JIJI::Process.new(id, r.process_dir, r.agent_manager(id,false), props, props == nil)
+          c = JIJI::Process.new(id, r.process_dir, r.agent_manager(id,false), props, r, props == nil)
           c.observer_manager = r.backtest_observer_manager(id)
           c.collector = r.backtest_collector(id,
             Time.at( c["start_date"]), Time.at( c["end_date"]))

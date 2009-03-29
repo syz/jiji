@@ -44,12 +44,12 @@ fx.agent.ui.AgentSelector.prototype = {
     if ( !this.readOnly ) {
       this.addButton = new util.Button(this.id + "__add", "add", function() {
         self.add();
-      }, "追加");
+      }, fx.template.Templates.common.button.add);
       this.addButton.setEnable( true );
 
       this.removeButton = new util.Button(this.id + "__remove", "remove", function() {
         self.remove();
-      }, "削除");
+      }, fx.template.Templates.common.button.del);
       this.removeButton.setEnable( false );
     }
   },
@@ -74,6 +74,7 @@ fx.agent.ui.AgentSelector.prototype = {
     // 編集中なら、編集を確定
     if ( this.isEditing() ) {
       this.edit();
+      this.agentListTable.table.unselectAllRows();
     }
     var agents = [];
     var rs = this.agentListTable.table.getRecordSet().getRecords( 0, this.agentListTable.length() );
@@ -120,7 +121,9 @@ fx.agent.ui.AgentSelector.prototype = {
         }, null ); // TODO
       },
       buttons : [
-        { type:"ok", action: function(dialog){
+        { type:"ok", 
+          alt: fx.template.Templates.common.button.ok,
+          key: "Enter", action: function(dialog){
 
             var selectedRowIds = self.agentClassListTable.table.getSelectedRows();
             var error = null;
@@ -136,17 +139,19 @@ fx.agent.ui.AgentSelector.prototype = {
             }
 
             if (error) {
-              dialog.content.innerHTML = '<div class="warn_msg">※'
-                   + error + '</div>' + msg;
+              dialog.content.innerHTML = fx.template.Templates.agentSelector.error.evaluate({
+                error: error.escapeHTML(),
+                msg: msg.escapeHTML()
+              });
               self.agentClassListTable.elementId = "agent_class_list";
-               self.agentClassListTable.initialize();
-               self.agentClassListTable.setData(self.agentClasses);
+              self.agentClassListTable.initialize();
+              self.agentClassListTable.setData(self.agentClasses);
               return false;
             } else {
               self._add( agents );
             }
         } },
-        { type:"cancel" }
+        { type:"cancel", alt: fx.template.Templates.common.button.cancel, key: "Esc" }
       ]
     } );
 
@@ -172,11 +177,14 @@ fx.agent.ui.AgentSelector.prototype = {
       var defs = newAgents[i].properties;
       var prop = {};
       var def  = {};
+      var error =  null;
       for ( var j=0, s=defs.length;j<s;j++  ) {
         def[defs[j]["id"]] = defs[j];
         prop[defs[j]["id"]] = defs[j]["default"] || "";
+        error = error || this.agentPropertyEditor.validate[defs[j].type].call( 
+            this.agentPropertyEditor, prop[defs[j]["id"]], defs[j].restrict );
       }
-
+      
       var a = {
         "id": UUID.generate(),
         "name": "名称未設定エージェント"+k,
@@ -185,7 +193,8 @@ fx.agent.ui.AgentSelector.prototype = {
         "file_name":newAgents[i].file_name,
         "description":newAgents[i].description,
         "property_def":def,
-        "properties":prop
+        "properties":prop,
+        "state": error ? "error" : ""
       };
       this.agentListTable.add( a ); // テーブルを更新
     }
@@ -194,10 +203,10 @@ fx.agent.ui.AgentSelector.prototype = {
   // 削除
   remove: function(){
 
-    // 編集中なら、編集を確定
-    if ( this.isEditing() ) {
-      this.edit();
-    }
+//    // 編集中なら、編集を確定
+//    if ( this.isEditing() ) {
+//      this.edit();
+//    }
 
     // 選択されている行を取得
     var selectedRowIds = this.agentListTable.table.getSelectedTrEls();
@@ -210,7 +219,7 @@ fx.agent.ui.AgentSelector.prototype = {
     this.dialog.show( "input", {
       message : msg,
       buttons : [
-        { type:"ok", action: function(dialog){
+        { type:"ok",alt: fx.template.Templates.common.button.ok, key: "Enter", action: function(dialog){
             // 行のデータを削除
            for( var j=0,s=selectedRowIds.length;j<s;j++ ) {
              self.agentListTable.remove( selectedRowIds[j] );
@@ -219,7 +228,7 @@ fx.agent.ui.AgentSelector.prototype = {
            self.selectionChanged();
         }},
         { type:"cancel",
-          alt: "キャンセル",
+          alt: fx.template.Templates.common.button.cancel,
           key: "Esc"
         }
       ]
@@ -271,14 +280,14 @@ fx.agent.ui.AgentSelector.prototype = {
   /**
    * プロパティを保存
    */
-  edit: function(){
+  edit: function( ){
     if ( this.readOnly ) return;
     var newData = this.agentPropertyEditor.get();
     if ( newData ) {
       this.agentListTable.update( this.agentPropertyEditor.target, newData );
       this.agentPropertyEditor.target = null;
       this.agentPropertyEditor.end();
-
+      
       this.checkDuplicateName();
     }
   },
@@ -346,10 +355,14 @@ fx.agent.ui.AgentClassListTable.prototype = util.merge( util.BasicTable, {
   initialize: function() {
     var self = this;
     var columnDefs = [
-      {key:"class_name", label:"クラス", sortable:true, resizeable:true, width:80 },
-      {key:"file_name", label:"ファイル", sortable:true, resizeable:true, width:80 },
+      {key:"class_name", label:"クラス", sortable:true, resizeable:true, formatter: function( cell, record, column, data){
+        cell.innerHTML = String(data).escapeHTML();
+      }, width:80 },
+      {key:"file_name", label:"ファイル", sortable:true, resizeable:true, formatter: function( cell, record, column, data){
+        cell.innerHTML = String(data).escapeHTML();
+      }, width:80 },
       {key:"description", label:"説明", sortable:true, resizeable:true, formatter: function( cell, record, column, data){
-        cell.innerHTML =  "<pre>" +  data + "</pre>";
+        cell.innerHTML =  "<pre>" +  String(data).escapeHTML() + "</pre>";
       }}
     ];
     self.ds = new YAHOO.util.DataSource([]);
@@ -382,16 +395,20 @@ fx.agent.ui.AgentListTable.prototype = util.merge( util.BasicTable, {
       {key:"name", label:"名前", sortable:true, resizeable:true, width:100, formatter: function( cell, record, column, data){
         var str = data.escapeHTML();
         if ( record.getData().state === "error" || record.getData().duplicate_name_error ) {
-          str = '<div class="problem"><span style="padding-right:3px;padding-top:2px;"><img src="./img/problem.gif" alt="問題" /></span>' + str + '</div>';
+          str = '<div class="problem"><span style="padding-right:3px;padding-top:2px;"><!--img src="./img/problem.gif" alt="問題" / --></span>' + String(str).escapeHTML() + '</div>';
         }
         cell.innerHTML =  str;
       }},
-      {key:"class_name", label:"クラス", sortable:true, resizeable:true, width:80 },
-      {key:"file_name", label:"ファイル", sortable:true, resizeable:true,width:80 },
+      {key:"class_name", label:"クラス", sortable:true, resizeable:true, formatter: function( cell, record, column, data){
+        cell.innerHTML = String(data).escapeHTML();
+      }, width:80 },
+      {key:"file_name", label:"ファイル", sortable:true, resizeable:true, formatter: function( cell, record, column, data){
+        cell.innerHTML = String(data).escapeHTML();
+      }, width:80 },
       {key:"properties", label:"プロパティ", sortable:true, resizeable:true, width:250, formatter: function( cell, record, column, data){
         var str = "";
         for( var k in data ) {
-          str += String(record.getData().property_def[k].name) + "=" + String(data[k]) + ", ";
+          str += String(record.getData().property_def[k].name).escapeHTML() + "=" + String(data[k]).escapeHTML() + ", ";
           if ( str.length > 500 ) {  break; }
         }
         cell.innerHTML =  str;
@@ -441,16 +458,17 @@ fx.agent.ui.AgentPropertyEditor.prototype = {
     var props = "";
     for ( var i in agent.property_def ) {
       props += fx.template.Templates.agentPropertyEditor.property.evaluate({
-        "name": agent.property_def[i].name,
+        "name": agent.property_def[i].name.escapeHTML(),
         "id": agent.property_def[i].id,
-        "default": agent.properties[agent.property_def[i].id] || agent.property_def[i]["default"]
+        "default": agent.properties[agent.property_def[i].id] != null 
+            ? agent.properties[agent.property_def[i].id] : agent.property_def[i]["default"]
       });
     }
     var info = {
       "id": this.elementId,
-      "class_name":agent.class_name,
-      "name": agent.name,
-      "desc": agent.description,
+      "class_name":agent.class_name.escapeHTML(),
+      "name": agent.name.escapeHTML(),
+      "desc": agent.description.escapeHTML(),
       "properties":props
     };
     document.getElementById( this.elementId ).innerHTML =
@@ -504,7 +522,7 @@ fx.agent.ui.AgentPropertyEditor.prototype = {
       } else if ( input["name"].match(/^property\_(.+)$/)  ) {
         var id = RegExp.$1;
         var def = this.validators["property_" + id];
-        error = error || this.validate[def.type].call( this, this.editing["properties"][id], def );
+        error = error || this.validate[def.type].call( this, value, def );
         this.editing["properties"][id] =  !error ? this.convert[def.type].call( this, value ) : value ;
       }
     }
@@ -513,6 +531,7 @@ fx.agent.ui.AgentPropertyEditor.prototype = {
   },
   end : function() {
     this.editing = null;
+    this.clear( "エージェントを選択してください。" );
   },
   /**
    * 何も編集していない状態にする。
@@ -615,17 +634,19 @@ fx.agent.ui.AgentPropertyEditorReadOnly.prototype = {
    this.editing = util.merge({}, agent);
    var props = "";
    for ( var i in agent.property_def ) {
+     var value = agent.properties[agent.property_def[i].id] || agent.property_def[i]["default"];
+     if (value && Object.isFunction(value.escapeHTML )) { value = value.escapeHTML(); }
      props += fx.template.Templates.agentPropertyEditor.propertyReadOnly.evaluate({
-       "name": agent.property_def[i].name,
+       "name": agent.property_def[i].name.escapeHTML(),
        "id": agent.property_def[i].id,
-       "default": agent.properties[agent.property_def[i].id] || agent.property_def[i]["default"]
+       "default": value
      });
    }
    var info = {
      "id": this.elementId,
-     "class_name":agent.class_name,
-     "name": agent.name,
-     "desc": agent.description,
+     "class_name":agent.class_name.escapeHTML(),
+     "name": agent.name.escapeHTML(),
+     "desc": agent.description.escapeHTML(),
      "properties":props
    };
    document.getElementById( this.elementId ).innerHTML =

@@ -33,7 +33,7 @@ module JIJI
       if @agents.key? id
         raise UserError.new( JIJI::ERROR_ALREADY_EXIST, "agent is already exist. id=#{id}")
       end
-      output = @registory.output( @id, id )
+      output = @registry.output( @id, id )
       op = AgentOperator.new( @operator, name )
       safe( conf.get( [:agent,:safe_level], 4) ){
         agent.operator = op
@@ -127,7 +127,7 @@ module JIJI
     attr :trade_result_dao, true
     attr :operator, true
     attr :conf, true
-    attr :registory, true
+    attr :registry, true
   end
 
 end

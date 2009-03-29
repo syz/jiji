@@ -10,12 +10,12 @@ require "logger"
 require "testutils"
 
 # アウトプットのテスト(レジストリから取り出す)
-class OutputRegistoryTest <  RUNIT::TestCase
+class OutputregistryTest <  RUNIT::TestCase
 
   include Test::Constants
 
   def setup
-    @dir = File.dirname(__FILE__) + "/OutputRegistoryTest"
+    @dir = File.dirname(__FILE__) + "/OutputregistryTest"
     @registry = JIJI::Registry.new(@dir , nil)
     @mng = @registry[:process_manager]
   end
@@ -26,7 +26,11 @@ class OutputRegistoryTest <  RUNIT::TestCase
       begin
         @registry.permitter.close
       ensure
-        @registry.client.close
+        begin
+          @registry.client.close
+        ensure
+          @registry.server_logger.close
+        end
       end
     ensure
       FileUtils.rm_rf "#{@dir}/logs"

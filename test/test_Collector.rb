@@ -70,7 +70,7 @@ class CollectorTest <  RUNIT::TestCase
       assert_equals @c.state, :RUNNING
 
       # しばらくまって
-      sleep 15
+      sleep 20
       assert_equals @c.progress, 0 # 進捗は常に0
       assert_equals @c.state, :RUNNING
 

@@ -16,7 +16,7 @@ fx.ui.pages.RtSettingPage = function() {
   var self = this;
   this.applyButton = new util.Button("rt-setting__ok", "apply", function() {
     self.ok();
-  });
+  }, fx.template.Templates.common.button.apply);
   this.applyButton.setEnable( true );
 }
 fx.ui.pages.RtSettingPage.prototype = {
@@ -66,7 +66,7 @@ fx.ui.pages.RtSettingPage.prototype = {
       this.dialog.show( "warn", {
         message : "エージェントの設定に問題があります。",
         buttons : [
-          { type:"ok" }
+          { type:"ok", alt: fx.template.Templates.common.button.ok, key: "Enter" }
         ]
       } );
       return;
@@ -78,7 +78,10 @@ fx.ui.pages.RtSettingPage.prototype = {
     this.dialog.show( "input", {
       message : "設定を反映します。よろしいですか?<br/>",
       buttons : [
-        { type:"ok", action: function(dialog){
+        { type:"ok", 
+          alt: fx.template.Templates.common.button.ok, 
+          key: "Enter",
+          action: function(dialog){
           var enable = document.getElementById("rt-setting_trade-enable").checked;
           self.updateSetting( enable, agents, function() {
             // 更新時刻を表示
@@ -92,11 +95,11 @@ fx.ui.pages.RtSettingPage.prototype = {
 
           }, function(error){
             self.dialog.show( "warn", {
-              message : fx.template.Templates.rtsetting.apply.error.evaluate({"error":error[0].error})
+              message : fx.template.Templates.rtsetting.apply.error.evaluate({"error":error[0].error.escapeHTML()})
             });
-          }  ); 
+          }); 
         } },
-        { type:"cancel" }
+        { type:"cancel", alt: fx.template.Templates.common.button.cancel, key: "Esc" }
       ]
     } );
   },

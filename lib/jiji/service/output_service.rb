@@ -8,8 +8,9 @@ module JIJI
         list = {}
         names.each {|n|
 	        buff = []
-          outputs = p.agent_manager.get(n[0]).output
-	        outputs.get(n[1]).each( scale,
+          outputs = p.outputs[n[0]]
+	        next unless outputs
+          outputs.get(n[1]).each( scale,
             Time.at(start_time), Time.at(end_time) ) {|data|
 	          buff << data
 	        }
@@ -22,8 +23,8 @@ module JIJI
       # プロセスの出力一覧を取得する
       def list_outputs( process_id )
         p = process_manager.get( process_id )
-        return p.agent_manager.inject({}) {|buff,item|
-          buff[item[0]] = item[1].output.inject({}) {|r,v|
+        return p.outputs.inject({}) {|buff,item|
+          buff[item[0]] = item[1].inject({}) {|r,v|
             r[v[0]] = v[1].options
             r
           }
@@ -34,8 +35,11 @@ module JIJI
       # アウトプットのプロパティを設定
       def set_properties( process_id, name, properties )
         p = process_manager.get( process_id )
-        outputs = p.agent_manager.get(name[0]).output
-        outputs.get(name[1]).set_properties( properties )
+        outputs = p.outputs[name[0]]
+        raise UserError.new( JIJI::ERROR_NOT_FOUND, "output not found. name=#{name[0]}") unless outputs
+        out = outputs.get(name[1])
+        raise UserError.new( JIJI::ERROR_NOT_FOUND, "output not found. name=#{name[0]}:#{name[1]}") unless out
+        out.set_properties( properties )
         return :success
       end
 

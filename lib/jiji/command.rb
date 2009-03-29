@@ -86,6 +86,12 @@ securities:
 DATA
         }
         FileUtils.chmod(0600, "#{dir}/conf/configuration.yaml")
+
+        # サンプルエージェント
+        ["agents","shared_lib"].each {|d|
+          mkdir("#{dir}/#{d}")
+          FileUtils.copy( Dir.glob("#{__FILE__}/../../../base/#{d}/*"), "#{dir}/#{d}" )
+        }
       rescue Exception
         puts "[ERROR] setting failed.(#{$!.to_s})"
         return

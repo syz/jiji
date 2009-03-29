@@ -93,10 +93,10 @@ fx.ui.pages.AgentEditorPage.prototype = {
     agent_editor.setCode("\n");
     this.agentFileListTable.initialize();
     this.agentFileListTable.table.subscribe("rowSelectEvent", function(ev){
-    	self.selectionChanged();
+      self.selectionChanged();
     });
     this.agentFileListTable.table.subscribe("rowUnselectEvent", function(ev){
-    	self.selectionChanged();
+      self.selectionChanged();
     });
     this.agentFileListTable.loading(true);
     this.listAgentFiles( true, function( data ) {
@@ -117,23 +117,24 @@ fx.ui.pages.AgentEditorPage.prototype = {
     this.dialog.show( "input", {
       message : fx.template.Templates.agentEditor.add.body.evaluate({ "text" : "" }),
       init: function() {
-    		document.file_name_input_form.file_name_input.focus();
+        document.file_name_input_form.file_name_input.focus();
         if ( !agent_editor.textarea.readOnly ) {
-        	agent_editor.toggleReadOnly();
+          agent_editor.toggleReadOnly();
         }
-    	},
+      },
       buttons : [
         { type:"ok",
-        	alt: "ok",
-        	key: "Enter",
-        	action: function(dialog){
+          alt: fx.template.Templates.common.button.ok,
+          key: "Enter",
+          action: function(dialog){
             var text = document.getElementById("file_name_input").value;
-              // 文字列をチェック
+            
+            // 文字列をチェック
             var error = null;
             if ( !text ) {
                 error = fx.template.Templates.agentEditor.add.errormsgs.no;
             }
-            if ( !error && !text.match( /^[A-Za-z0-9_\*\+\-\#\"\'\!\~\(\)\[\]\?\.]+$/ ) ) {
+           if ( !error && !text.match( /^[A-Za-z0-9_\*\+\-\#\"\'\!\~\(\)\[\]\?\.]+$/ ) ) {
                 error = fx.template.Templates.agentEditor.add.errormsgs.illegalChar;
             }
                // 重複チェック
@@ -151,8 +152,8 @@ fx.ui.pages.AgentEditorPage.prototype = {
             }
             if (error) {
                 dialog.content.innerHTML =
-                  fx.template.Templates.agentEditor.add.error.evaluate({ "error" : error })
-                  + fx.template.Templates.agentEditor.add.body.evaluate({ "text" : text })
+                  fx.template.Templates.agentEditor.add.error.evaluate({ "error" : error.escapeHTML() })
+                  + fx.template.Templates.agentEditor.add.body.evaluate({ "text" : text.escapeHTML() })
                 return false;
             } else {
                 self.saveFile( text, self.target, "", function(){
@@ -162,20 +163,20 @@ fx.ui.pages.AgentEditorPage.prototype = {
                           self.selectionChanged();
                         }, null ); // TODO
                 }, null ); // TODO
-    	          if ( old != agent_editor.textarea.readOnly ) {
-    	          	agent_editor.toggleReadOnly();
-    	          }
+                if ( old != agent_editor.textarea.readOnly ) {
+                  agent_editor.toggleReadOnly();
+                }
                 return true;
             }
         } },
         { type:"cancel",
-        	alt: fx.template.Templates.common.button.cancel,
-        	key: "Esc",
-        	action: function(dialog){
-	          if ( old != agent_editor.textarea.readOnly ) {
-	          	agent_editor.toggleReadOnly();
-	          }
-	          return true;
+          alt: fx.template.Templates.common.button.cancel,
+          key: "Esc",
+          action: function(dialog){
+            if ( old != agent_editor.textarea.readOnly ) {
+              agent_editor.toggleReadOnly();
+            }
+            return true;
         }}
       ]
     } );
@@ -189,7 +190,7 @@ fx.ui.pages.AgentEditorPage.prototype = {
     }
     var names = [];
     for( var i=0,s=selectedRowIds.length;i<s;i++ ) {
-    	names.push( this.agentFileListTable.table.getRecord( selectedRowIds[i] ).getData().name);
+      names.push( this.agentFileListTable.table.getRecord( selectedRowIds[i] ).getData().name);
     }
     // 確認
     var self = this;
@@ -198,14 +199,17 @@ fx.ui.pages.AgentEditorPage.prototype = {
       message : fx.template.Templates.agentEditor.remove.body,
       init: function() {
         if ( !agent_editor.textarea.readOnly ) {
-        	agent_editor.toggleReadOnly();
+          agent_editor.toggleReadOnly();
         }
-    	},
+      },
       buttons : [
-        { type:"ok", action: function(dialog){
-	          if ( old != agent_editor.textarea.readOnly ) {
-	          	agent_editor.toggleReadOnly();
-	          }
+        { type:"ok", 
+          alt: fx.template.Templates.common.button.ok,
+          key: "Enter", 
+          action: function(dialog){
+            if ( old != agent_editor.textarea.readOnly ) {
+              agent_editor.toggleReadOnly();
+            }
             // 行のデータを削除
             self.deleteFile( names, function(){
                 self.listAgentFiles( true, function( data ) {
@@ -214,15 +218,16 @@ fx.ui.pages.AgentEditorPage.prototype = {
                   self.selectionChanged();
                 }, null ); // TODO
             }, null ); // TODO
+            return true;
         }},
         { type:"cancel",
-        	alt: fx.template.Templates.common.button.cancel,
-        	key: "Esc",
-        	action: function(dialog){
-	          if ( old != agent_editor.textarea.readOnly ) {
-	          	agent_editor.toggleReadOnly();
-	          }
-	          return true;
+          alt: fx.template.Templates.common.button.cancel,
+          key: "Esc",
+          action: function(dialog){
+            if ( old != agent_editor.textarea.readOnly ) {
+              agent_editor.toggleReadOnly();
+            }
+            return true;
         }}
       ]
     });
@@ -238,7 +243,7 @@ fx.ui.pages.AgentEditorPage.prototype = {
            fx.template.Templates.agentEditor.saved.success.evaluate({ "now" : util.formatDate( new Date() ) });
        } else {
          document.getElementById("agent_edit_msg").innerHTML = 
-           fx.template.Templates.agentEditor.saved.error.evaluate({ "now" : util.formatDate( new Date() ), "result":result} );
+           fx.template.Templates.agentEditor.saved.error.evaluate({ "now" : util.formatDate( new Date() ), "result":result.escapeHTML()} );
        }
     }, null ); // TODO
   },
@@ -267,13 +272,16 @@ fx.ui.pages.AgentEditorPage.prototype = {
     this.dialog.show( "input", {
       message : fx.template.Templates.agentEditor.dosave,
       buttons : [
-        { type:"yes", action: function(dialog){
+        { type:"yes", 
+          alt: fx.template.Templates.common.button.yes,
+          key: "Enter", 
+          action: function(dialog){
             self.save(false, editingFile, target, newData);
             if (callback) { callback(); }
             return true;
         }},
         { type:"no",
-          alt: fx.template.Templates.common.button.cancel,
+          alt: fx.template.Templates.common.button.no,
           key: "Esc", 
           action: function(dialog){
             if (callback) { callback(); }
@@ -295,23 +303,23 @@ fx.ui.pages.AgentEditorPage.prototype = {
   selectionChanged: function() {
 
     // 選択されている行を取得
-  	var self = this;
+    var self = this;
     var selectedRowIds = this.agentFileListTable.table.getSelectedTrEls();
     var data = null;
     var removeEnable = false;
     if ( selectedRowIds.length <= 0 ) {
-    	// 選択なし
-    	removeEnable = false;
-    	document.getElementById("agent-editor-file-name").innerHTML=
-    	 fx.template.Templates.agentEditor.defaultFileName;
+      // 選択なし
+      removeEnable = false;
+      document.getElementById("agent-editor-file-name").innerHTML=
+       fx.template.Templates.agentEditor.defaultFileName;
     } else if ( selectedRowIds.length == 1 ) {
-    	removeEnable = true;
-    	// エディタも更新する。
-    	data = this.agentFileListTable.table.getRecord( selectedRowIds[0] ).getData();
+      removeEnable = true;
+      // エディタも更新する。
+      data = this.agentFileListTable.table.getRecord( selectedRowIds[0] ).getData();
     } else {
-    	removeEnable = true;
-    	// エディタは初期化
-    	document.getElementById("agent-editor-file-name").innerHTML= "---";
+      removeEnable = true;
+      // エディタは初期化
+      document.getElementById("agent-editor-file-name").innerHTML= "---";
     }
     //  削除の状態更新
     this.removeButton.setEnable(removeEnable);
@@ -321,28 +329,28 @@ fx.ui.pages.AgentEditorPage.prototype = {
     // 保存確認
     self.saveIfNotSaved( function(){ 
       if ( data ) {
-  	    self.editingFile = null;
-  	    document.getElementById("agent-editor-file-name").innerHTML=
-  	      fx.template.Templates.common.loading;
-  	    self.getFile( data.name, function( body ) {
-  	      body = body.strip();
-  	      self.editingFile = data.name;
-  	      self.prevCode = body;
-  	      if ( agent_editor.textarea.readOnly ) {
-  	      	agent_editor.toggleReadOnly();
-  	      }
-  	      if( body == "" ) body = "\n" // 空文字をcodePressに設定するとバグるので対策。
-  	      agent_editor.setCode(body);
-  	      agent_editor.editor.syntaxHighlight('init');
-  	      document.getElementById("agent-editor-file-name").innerHTML= data.name;
-  	      document.getElementById("agent_edit_msg").innerHTML = "";
-  	      self.saveButton.setEnable( true );
-  	    }, null ); // TODO
+        self.editingFile = null;
+        document.getElementById("agent-editor-file-name").innerHTML=
+          fx.template.Templates.common.loading;
+        self.getFile( data.name, function( body ) {
+          body = body.strip();
+          self.editingFile = data.name;
+          self.prevCode = body;
+          if ( agent_editor.textarea.readOnly ) {
+            agent_editor.toggleReadOnly();
+          }
+          if( body == "" ) body = "\n" // 空文字をcodePressに設定するとバグるので対策。
+          agent_editor.setCode(body);
+          agent_editor.editor.syntaxHighlight('init');
+          document.getElementById("agent-editor-file-name").innerHTML= data.name;
+          document.getElementById("agent_edit_msg").innerHTML = "";
+          self.saveButton.setEnable( true );
+        }, null ); // TODO
       } else {
-  	    self.clearEdit();
+        self.clearEdit();
         agent_editor.editor.syntaxHighlight('init');
         if ( !agent_editor.textarea.readOnly ) {
-        	agent_editor.toggleReadOnly();
+          agent_editor.toggleReadOnly();
         }
       }
     });
@@ -407,7 +415,9 @@ fx.ui.AgentFileListTable.prototype = util.merge( util.BasicTable, {
     var self = this;
     var columnDefs = [
       {key:"name", label:fx.template.Templates.agentEditor.fileList.column.name,
-        sortable:true, resizeable:true, width:122},
+        sortable:true, resizeable:true, formatter: function( cell, record, column, data){
+          cell.innerHTML =  String(data).escapeHTML();
+      }, width:122},
       {key:"update", label:fx.template.Templates.agentEditor.fileList.column.update,
         sortable:true, resizeable:true, formatter: function( cell, record, column, data){
           var d = new Date(data*1000);
