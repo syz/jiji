@@ -90,7 +90,7 @@ DATA
         # サンプルエージェント
         ["agents","shared_lib"].each {|d|
           mkdir("#{dir}/#{d}")
-          FileUtils.copy( Dir.glob("#{__FILE__}/../../../base/#{d}/*"), "#{dir}/#{d}" )
+          FileUtils.copy( Dir.glob(File.expand_path("#{__FILE__}/../../../base/#{d}/*")), "#{dir}/#{d}" )
         }
       rescue Exception
         puts "[ERROR] setting failed.(#{$!.to_s})"
