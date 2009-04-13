@@ -22,8 +22,7 @@ module JIJI
       
       param[:Logger] = registry[:server_logger]  
       param[:DocumentRoot] = File.expand_path( "#{__FILE__}/../../../html" )
-      
-      param[:Logger].info( File.expand_path( "#{__FILE__}/../../../html" ) )
+      param[:Logger].info( "document root: #{ param[:DocumentRoot] }"  )
       
       start_callback_org = param[:StartCallback]
       param[:StartCallback] = proc {

@@ -205,8 +205,8 @@ fx.ui.pages.TradeResultPage.prototype = {
         endDate = now.getTime()/1000;
 
         // フィールドにも設定しておく
-        document.getElementById("subpage-trade_range-year").value = now.getFullYear();
-        document.getElementById("subpage-trade_range-month").value = now.getMonth()+1;
+        document.getElementById("subpage-trade_range-year").value = start.getFullYear();
+        document.getElementById("subpage-trade_range-month").value = start.getMonth()+1;
         document.getElementById("subpage-trade_range-day").value = start.getDate();
         document.getElementById("subpage-trade_range-end-year").value = now.getFullYear();
         document.getElementById("subpage-trade_range-end-month").value = now.getMonth()+1;

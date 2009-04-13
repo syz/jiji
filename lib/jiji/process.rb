@@ -15,9 +15,10 @@ module JIJI
 
     # コンストラクタ
     # 再起動後の復元の場合、プロパティを指定しないこと。この場合設定ファイルからロードされる。
-    def initialize( id, process_dir, agent_manager, props=nil, registry=nil, ignore_error=false )
-      
+    def initialize( id, process_dir, agent_manager, logger, props=nil, registry=nil, rmt=false )
+
       is_recreate = props == nil
+      @logger = logger
       @registry = registry
       @id = id
       @agent_manager = agent_manager
@@ -43,20 +44,20 @@ module JIJI
         }
         @props["agents"] = [] unless @props.key? "agents"
       end
-      
-      # 新規作成の場合はエージェントをロード
-      # 再起動後の再作成時は、アウトプロットのみ作成。
+
+      # RMTまたは新規作成の場合はエージェントをロード
+      # 再起動後の再作成時は、アウトプットのみ作成。
       @outputs = {}
-      if !is_recreate
-        load_agent(ignore_error)
+      if rmt || !is_recreate
+        load_agent(rmt) # リアル取引の再起動時は発生したエラーを無視する
       else
         if @props && @props["agents"]
           @props["agents"].each {|v|
-            @outputs[v["id"]] = @registry.output( @id, v["id"] )
+            @outputs[v["id"]] = @registry.output( @id, v["name"] )
           }
         end
       end
-          
+
       # 取引の有効状態を更新
       @agent_manager.operator.trade_enable =
         @props["trade_enable"] ? true : false
@@ -113,7 +114,6 @@ module JIJI
     end
 
     def []=(k,v)
-      @props[k] = v
       if ( k == "agents" )
         # エージェントの設定が更新された
         # 削除対象を特定するため、登録済みエージェントのIDのセットを作成
@@ -124,13 +124,16 @@ module JIJI
           set.delete item["id"]
         }
         # Mapに含まれていないエージェントは削除
-        set.each { |id| agent_manager.remove( id ) }
+        set.each { |id|
+          agent_manager.remove( id )
+          outputs.delete( id )
+        }
       end
       if ( k == "trade_enable" )
         # 取引の有効状態を更新
-        @agent_manager.operator.trade_enable =
-          @props["trade_enable"] ? true : false
+        @agent_manager.operator.trade_enable = v ? true : false
       end
+      @props[k] = v
       save_props
     end
     def [](k)
@@ -151,8 +154,9 @@ module JIJI
     attr :process_dir, true
     attr :agent_manager, true
     attr :outputs, true
+    attr :logger, true
     attr :registry, true
-    
+
   private
 
     # 任意のエージェントの設定を更新する。
@@ -163,7 +167,8 @@ module JIJI
         a.agent.properties = props
       else
         agent = agent_manager.agent_registry.create( cl, props )
-        agent_manager.add( id, agent )
+        agent_manager.add( id, agent, props["name"] )
+        @outputs[id] = agent.output
       end
     end
 
@@ -192,10 +197,14 @@ module JIJI
 	          agent_manager.add( v["id"], agent, v["name"] )
             @outputs[v["id"]] = agent.output
           rescue Exception
-            raise $! unless ignore_error 
+            unless ignore_error
+              raise $!
+            else
+              @logger.error $!
+            end
             # リアルトレードの場合、停止中にエージェントが破棄された場合を考慮し
             # エージェントの初期化で失敗しても無視し、出力先だけ作成
-            @outputs[v["id"]] = @registry.output( @id, v["id"] )
+            @outputs[v["id"]] = @registry.output( @id, v["name"] )
           end
 	      }
       end
