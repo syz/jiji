@@ -24,3 +24,6 @@ require "test_ProcessManager"
 require "test_RateDao"
 require "test_Permitter"
 require "test_TradeResultDao"
+
+require "migration/test_Migrator"
+require "migration/test_Migrator1_0_3"

@@ -12,6 +12,11 @@ module JIJI
       registry = JIJI::Registry.new(base, self)
       registry.server_logger.info "base dir : #{base}"
       
+      # データ移行
+      JIJI::Util.log_if_error_and_throw(registry.server_logger) {
+        registry.migrator.migrate
+      }
+      
       conf = registry[:conf]
       param[:Port] = conf.get([:server,:port], 7000).to_i 
       begin

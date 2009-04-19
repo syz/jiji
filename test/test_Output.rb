@@ -25,11 +25,11 @@ class OutputTest <  RUNIT::TestCase
   def test_basic
     
     # 書き込み
-    out  = @o.get( "テスト",  :event, { "a"=>"aaa", "b"=>"bbb" } )
+    out  = @o.get( "テスト",  :event, { :a=>"aaa", :b=>"bbb" } )
     out2 = @o.get( "テスト2", :graph )
     
-    assert_equals out.options, { "a"=>"aaa", "b"=>"bbb", "name"=>"テスト", "type"=>"event" }
-    assert_equals out2.options, { "name"=>"テスト2", "type"=>"graph" }
+    assert_equals out.options, { :a=>"aaa", :b=>"bbb", :name=>"テスト", :type=>"event" }
+    assert_equals out2.options, { :name=>"テスト2", :type=>"graph" }
     
     @o.time = Time.local(2008, 8, 1, 10, 0, 0)
     out.put( "type", "データ\nデータ" )
@@ -123,14 +123,14 @@ class OutputTest <  RUNIT::TestCase
     assert_equals out2.object_id, @o.get( "テスト2",  :event ).object_id
     
     #プロパティの更新
-    assert_equals out.options, { "a"=>"aaa", "b"=>"bbb", "name"=>"テスト", "type"=>"event" }
-    assert_equals out2.options, { "name"=>"テスト2", "type"=>"graph" }    
+    assert_equals out.options, { :a=>"aaa", :b=>"bbb", :name=>"テスト", :type=>"event" }
+    assert_equals out2.options, { :name=>"テスト2", :type=>"graph" }    
     
-    out.set_properties( {"x"=>"xxx", "a"=>"abc"} )
-    out2.set_properties( {"y"=>"yyy", "a"=>"ab"} )
+    out.set_properties( {:x=>"xxx", "a"=>"abc"} ) # 文字列をキーにしてもto_symされたものがキーにされる。
+    out2.set_properties( {:y=>"yyy", :a=>"ab"} )
     
-    assert_equals out.options, {"x"=>"xxx", "a"=>"abc", "b"=>"bbb", "name"=>"テスト", "type"=>"event" }
-    assert_equals out2.options, { "y"=>"yyy", "a"=>"ab", "name"=>"テスト2", "type"=>"graph" }    
+    assert_equals out.options, {:x=>"xxx", :a=>"abc", :b=>"bbb", :name=>"テスト", :type=>"event" }
+    assert_equals out2.options, { :y=>"yyy", :a=>"ab", :name=>"テスト2", :type=>"graph" }    
     
     # 再作成 # 既存のデータがロードされる
     @o = JIJI::Output.new( "テストエージェント", @dir )
@@ -147,8 +147,8 @@ class OutputTest <  RUNIT::TestCase
       ["200", "220", Time.local(2008, 8, 1, 12, 10, 20).to_i.to_s],
       ["10" , "20",  Time.local(2008, 8, 3, 10, 0, 0).to_i.to_s]
     ]
-    assert_equals @o.get("テスト").options, {"x"=>"xxx", "a"=>"abc", "b"=>"bbb", "name"=>"テスト", "type"=>"event" }
-    assert_equals @o.get("テスト2").options, { "y"=>"yyy", "a"=>"ab", "name"=>"テスト2", "type"=>"graph" }
+    assert_equals @o.get("テスト").options, {:x=>"xxx", :a=>"abc", :b=>"bbb", :name=>"テスト", :type=>"event" }
+    assert_equals @o.get("テスト2").options, { :y=>"yyy", :a=>"ab", :name=>"テスト2", :type=>"graph" }
     @o.each {|k, v|
       case k
       when "テスト"

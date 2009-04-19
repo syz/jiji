@@ -1,6 +1,7 @@
 
 require 'rubygems'
 require 'yaml'
+require 'jiji/util/fix_yaml_bug'
 require 'needle'
 require 'jiji/collector'
 require 'jiji/configuration'
@@ -28,6 +29,9 @@ require 'jiji/service/trade_result_service'
 require 'jiji/service/output_service'
 require 'jiji/service/process_service'
 require 'jiji/service/system_service'
+
+require 'jiji/migration/migrator'
+require 'jiji/migration/migrator1_0_3'
 
 module JIJI
 
@@ -68,6 +72,10 @@ module JIJI
 	        process_dir = "#{r.base_dir}/#{r.conf.get([:dir,:process_log], "process_logs")}"
 	        FileUtils.mkdir_p process_dir
           process_dir
+        }
+        # バージョンファイル
+        r.register( :version_file ) {
+          r.base_dir + "/data_version"
         }
 
         # ロガー
@@ -238,6 +246,18 @@ module JIJI
         r.register( :system_service ) {
           c = JIJI::Service::SystemService.new
           c.server = r.server
+          c
+        }
+        
+        # データ移行
+        r.register( :migrator ) {
+          c = JIJI::Migration::Migrator.new
+          c.registry = r
+          c.server_logger = r.server_logger
+          c.version_file = r.version_file
+          c.migrators = [
+            { :version=>Gem::Version.new( "1.0.3" ), :migrator=>JIJI::Migration::Migrator1_0_3.new}
+          ]
           c
         }
       }

@@ -26,8 +26,8 @@ module JIJI
           next unless File.directory? d
           next unless File.exist? "#{d}/meta.yaml"
           props = YAML.load_file "#{d}/meta.yaml"
-          @outs[props["name"]] =
-            create_output( d, props["name"], props["type"].to_sym, props )
+          @outs[props[:name]] =
+            create_output( d, props[:name], props[:type].to_sym, props )
         }
       }
     end
@@ -52,8 +52,8 @@ module JIJI
       DirLock.new( @dir ).writelock {
         sub_dir = "#{@dir}/#{JIJI::Util.encode(name).gsub(/\//, "_")}"
         FileUtils.mkdir_p sub_dir
-        options["type"] = type.to_s
-        options["name"] = name
+        options[:type] = type.to_s
+        options[:name] = name
         @outs[name] = create_output( sub_dir, name, type, options )
         @outs[name].time = time
         @outs[name].save
@@ -114,7 +114,7 @@ module JIJI
     #props:: プロパティ
     def set_properties( props )
       props.each_pair {|k,v|
-        @options[k] = v
+        @options[k.to_sym] = v
       }
       save
     end

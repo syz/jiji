@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name = "jiji"
-  spec.version = "1.0.2"
+  spec.version = "1.0.3"
   spec.summary = "open and free fx auto trade system."
   spec.author = "Masaya Yamauchi"
   spec.email = "y-masaya@red.hot.co.jp"
@@ -374,6 +374,8 @@ Gem::Specification.new do |spec|
     "lib/jiji/dao/timed_data_dao.rb",
     "lib/jiji/dao/trade_result_dao.rb",
     "lib/jiji/error.rb",
+    "lib/jiji/migration/migrator.rb",
+    "lib/jiji/migration/migrator1_0_3.rb",
     "lib/jiji/models.rb",
     "lib/jiji/observer.rb",
     "lib/jiji/operator.rb",
@@ -546,6 +548,11 @@ Gem::Specification.new do |spec|
     "test/BackCollectorTest/lack/ZARJPY/raw/2008-08-04.csv",
     "test/BackCollectorTest/lack/ZARJPY/raw/2008-08-06.csv",
     "test/BackCollectorTest/lack/ZARJPY/raw/2008-08-07.csv",
+    "test/migration/migrator1_0_3test_data/rmt/out/M2NlOTA2ODEtZDdlNi00NWU1LWIwNDQtMjBmODY2ZGNkNzBj/56e75YuV5bmz5Z2H57ea/meta.yaml",
+    "test/migration/migrator1_0_3test_data/rmt/out/NjM5YWFhZmQtNDFjNy00NjUxLWIwYmItNTc3ZjAyZTg5ODA5/56e75Yuasdwqdd/meta.yaml",
+    "test/migration/migrator1_0_3test_data/rmt/out/NjM5YWFhZmQtNDFjNy00NjUxLWIwYmItNTc3ZjAyZTg5ODA5/56e75YuV5bmz5Z2H57ea/meta.yaml",
+    "test/migration/test_Migrator.rb",
+    "test/migration/test_Migrator1_0_3.rb",
     "test/ProcessManagerTest/agents/moving_average.rb",
     "test/ProcessManagerTest/conf/configuration.yaml",
     "test/ProcessManagerTest/rate_datas/EURJPY/raw/2008-08-21.csv",
@@ -628,6 +635,11 @@ Gem::Specification.new do |spec|
     "test/BackCollectorTest/lack/ZARJPY/raw/2008-08-04.csv",
     "test/BackCollectorTest/lack/ZARJPY/raw/2008-08-06.csv",
     "test/BackCollectorTest/lack/ZARJPY/raw/2008-08-07.csv",
+    "test/migration/migrator1_0_3test_data/rmt/out/M2NlOTA2ODEtZDdlNi00NWU1LWIwNDQtMjBmODY2ZGNkNzBj/56e75YuV5bmz5Z2H57ea/meta.yaml",
+    "test/migration/migrator1_0_3test_data/rmt/out/NjM5YWFhZmQtNDFjNy00NjUxLWIwYmItNTc3ZjAyZTg5ODA5/56e75Yuasdwqdd/meta.yaml",
+    "test/migration/migrator1_0_3test_data/rmt/out/NjM5YWFhZmQtNDFjNy00NjUxLWIwYmItNTc3ZjAyZTg5ODA5/56e75YuV5bmz5Z2H57ea/meta.yaml",
+    "test/migration/test_Migrator.rb",
+    "test/migration/test_Migrator1_0_3.rb",
     "test/ProcessManagerTest/agents/moving_average.rb",
     "test/ProcessManagerTest/conf/configuration.yaml",
     "test/ProcessManagerTest/rate_datas/EURJPY/raw/2008-08-21.csv",
